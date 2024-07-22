@@ -224,12 +224,8 @@ export const setAceitoSaques = (userId, saqueId, aceito, methodPayment, obs, val
                 return;
             }
 
-            if (!userData.COIN_VALUE_ATUAL) {
-                console.error(`User document with ID ${userId} does not have COIN_VALUE_ATUAL.`);
-                return;
-            }
+            
 
-            const valor_moeda_atual_do_cliente = parseFloat(userData.COIN_VALUE_ATUAL);
             const valor_sacado = userData.VALORSACADO ? (userData.VALORSACADO) : 0;
             const indicationBudget = userData.INDICATIONBUDGET;
 
