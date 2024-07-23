@@ -208,13 +208,13 @@ export default function Rendimentos() {
 
                 <RendimentosConfig>
                     <RendimentosAtualDiv>
-                        <h4>RENDIMENTO MENSAL</h4>
+                        <h4>RENDIMENTO MENSAL PAD.</h4>
                         <div>
                             <span>{rendimentoAtual}%</span>
                         </div>
                     </RendimentosAtualDiv>
                     <RendimentosAtualDiv>
-                        <h4>RENDIMENTO DIÁRIO</h4>
+                        <h4>RENDIMENTO DIÁRIO PAD.</h4>
                         <div>
                             <span>{(rendimentoAtual / daysInMonth).toFixed(2)}%</span>
                         </div>
