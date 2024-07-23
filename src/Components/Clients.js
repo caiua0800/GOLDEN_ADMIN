@@ -1,28 +1,73 @@
-// Users.js
-
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { formatCPF, getClients, formatNumber } from "./ASSETS/assets";
+import { formatCPF, getClients, formatNumber, getMonthlyYield } from "./ASSETS/assets";
+import { db } from "../DATABASE/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
 
 export default function Clientes() {
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState('');
-
+    const [specialIncome, setSpecialIncome] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [newSpecialIncome, setNewSpecialIncome] = useState('');
+    const [rendimentoPadrao, setRendimentoPadrao] = useState(0);
+    const [message, setMessage] = useState({ type: '', text: '' });
 
     useEffect(() => {
         getClients(setUsers);
+
+        getMonthlyYield().then((res) => {
+            setRendimentoPadrao(res);
+            console.log(res);
+        })
     }, []);
 
+    const handleCheckboxChange = () => {
+        setSpecialIncome(prevState => !prevState);
+    };
 
-
-    const filteredClients = search.length > 0
-        ? users.filter(user => (user.NAME.includes(search.toUpperCase())) || (user.CPF.includes(search.toUpperCase())))
-        : users;
-
-    console.log(users)
+    const filteredClients = users.filter(user => {
+        const matchesSearch = user.NAME.includes(search.toUpperCase()) || user.CPF.includes(search.toUpperCase());
+        const matchesSpecialIncome = !specialIncome || user.POSSUIRENDIMENTOESPECIAL;
+        return matchesSearch && matchesSpecialIncome;
+    });
 
     const handlereateClient = () => {
         window.location.href = '/criarcliente';
+    };
+
+    const handleCellDoubleClick = (user) => {
+        setSelectedUser(user);
+        setNewSpecialIncome(user.VALORRENDIMENTOESPECIAL || '');
+        setShowModal(true);
+    };
+
+    function formatCPF(cpf) {
+        return cpf.replace(/\D/g, '');
+    }
+
+    const handleSaveSpecialIncome = async () => {
+        if (selectedUser && newSpecialIncome !== '') {
+            try {
+                const userDoc = doc(db, 'USERS', formatCPF(selectedUser.CPF));
+                await updateDoc(userDoc, { VALORRENDIMENTOESPECIAL: newSpecialIncome });
+                // Atualizando a lista de usuários no estado
+                setUsers(prevUsers => prevUsers.map(user => 
+                    user.CPF === selectedUser.CPF ? { ...user, VALORRENDIMENTOESPECIAL: newSpecialIncome, POSSUIRENDIMENTOESPECIAL: true } : user
+                ));
+                setShowModal(false);
+                setMessage({ type: 'success', text: 'Rendimento atualizado com sucesso!' });
+            } catch (error) {
+                setMessage({ type: 'error', text: 'Erro ao atualizar rendimento. Tente novamente.' });
+            }
+        }
+    };
+
+    const handleReturnTypeOfRendimento = (taxa) => {
+        if(taxa > rendimentoPadrao) return 'RENDIMENTO ESPECIAL';
+        else if(taxa == rendimentoPadrao) return 'RENDIMENTO PADRÃO'
+        else return 'RENDIMENTO ABAIXO DA MÉDIA'
     }
 
     return (
@@ -42,6 +87,13 @@ export default function Clientes() {
                     />
                 </SearchBar>
 
+                <FiltrarClienteEspecial>
+                    <div>
+                        <input type="checkbox" checked={specialIncome} onChange={handleCheckboxChange} />
+                        <label>COM RENDIMENTO ESPECIAL</label>
+                    </div>
+                </FiltrarClienteEspecial>
+
                 <ClientsTable>
                     <TableContainer>
                         <Table>
@@ -55,7 +107,7 @@ export default function Clientes() {
                                     <TableHeaderCell>TOKENS OBTIDOS</TableHeaderCell>
                                     <TableHeaderCell>TOTAL INVESTIDO</TableHeaderCell>
                                     <TableHeaderCell>TOTAL GANHO</TableHeaderCell>
-                                    {/* <TableHeaderCell>OPÇÕES</TableHeaderCell> */}
+                                    <TableHeaderCell>RENDIMENTO</TableHeaderCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -69,7 +121,9 @@ export default function Clientes() {
                                         <TableCell>{user.TOTALCOINS}</TableCell>
                                         <TableCell>$ {formatNumber(user.TOTALPAGO)}</TableCell>
                                         <TableCell>$ {formatNumber(user.LUCRO_OBTIDO)}</TableCell>
-                                        {/* <TableCell>{index + 1}</TableCell> */}
+                                        <TableCell onDoubleClick={() => handleCellDoubleClick(user)}>
+                                            {user.POSSUIRENDIMENTOESPECIAL ? user.VALORRENDIMENTOESPECIAL : rendimentoPadrao}%
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -77,9 +131,123 @@ export default function Clientes() {
                     </TableContainer>
                 </ClientsTable>
             </Clients>
+
+            {showModal && (
+                <MudarRendimentoModal>
+                    <div className="ContainerRendimento">
+                        <p className="TituloContainerModal">ADICIONAR RENDIMENTO ESPECIAL</p>
+                        <div className="InformacoesDoCliente">
+                            <h5 className="rendimentoAtualText">O Rendimento atual do cliente <span className="rendimentoAtualTextSpan">{selectedUser.NAME}</span> é <span>{selectedUser.VALORRENDIMENTOESPECIAL || rendimentoPadrao}%</span></h5>
+                            <h4>{handleReturnTypeOfRendimento(selectedUser.POSSUIRENDIMENTOESPECIAL ? selectedUser.VALORRENDIMENTOESPECIAL : rendimentoPadrao)}</h4>
+                        </div>
+                        <div className="BoxDoNovoRendimento">
+                            <p>DIGITE O NOVO RENDIMENTO</p>
+                            <input type="number" value={newSpecialIncome} onChange={(e) => setNewSpecialIncome(e.target.value)} />
+                            <div className="areaDosBotoes">
+                                <button onClick={() => setShowModal(false)}>CANCELAR SOLICITAÇÃO</button>
+                                <button onClick={handleSaveSpecialIncome}>SALVAR UPGRADE</button>
+                            </div>
+                        </div>
+                    </div>
+                </MudarRendimentoModal>
+            )}
+
+            {message.text && (
+                <Message type={message.type}>
+                    {message.text}
+                </Message>
+            )}
         </ClientsContainer>
     );
 }
+
+const MudarRendimentoModal = styled.div`
+    width: 100%;
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    background-color: rgba(0,0,0,0.6);
+
+    .ContainerRendimento{
+        width: max-content;
+        height: max-content;
+        padding: 40px 30px;
+        border-radius: 8px;
+        box-shadow: 3px 3px 4px rgba(0,0,0,0.6);
+        box-sizing: border-box;
+        background: linear-gradient(to right, #001D3D, #001D3D);
+    }
+
+    .TituloContainerModal{
+        margin: 0;
+        font-size: 22px;
+        text-shadow: 2px 2px 1px rgba(0,0,0,0.4);
+        text-align: center;
+    }
+
+    .InformacoesDoCliente{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .rendimentoAtualText{
+            margin: 0;
+            font-size: 18px;
+            font-weight: 100;
+            text-align: center;
+
+            span{
+                margin: 0;
+                color: #60b6fb;
+                font-weight: 600;
+            }
+        }
+
+        h4{
+            margin: 0;
+            text-align: center;
+        }
+    }
+
+    .BoxDoNovoRendimento{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 20px;
+
+        p{
+            margin: 0;
+        }
+
+        input{
+            width: 100%;
+            height: 35px;
+            text-align: center;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 22px;
+        }
+    }
+
+    .areaDosBotoes{
+        width: 100%;
+        display: flex;
+        gap: 10px;
+        box-sizing: border-box;
+
+        button{
+            width: 100%;
+            height: 35px;
+            cursor: pointer;
+        }
+    }
+`;
 
 const ClientsContainer = styled.div`
     width: 100%;
@@ -245,6 +413,7 @@ const TableCell = styled.td`
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     min-width: 100px; /* Ajuste conforme necessário */
     white-space: nowrap;
+    cursor: pointer; /* Adicionado para indicar que a célula é clicável */
 `;
 
 const ImgClient = styled.div`
@@ -256,4 +425,55 @@ const ImgClient = styled.div`
     justify-content: center;
     align-items: center;
     background-color: #f96d00;
+`;
+
+const FiltrarClienteEspecial = styled.div`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    div{
+        display: flex;
+        align-items: center;
+
+        label{
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 1200px){
+        margin-top: 20px;
+    }
+`;
+
+const Message = styled.div`
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: ${({ type }) => (type === 'success' ? 'green' : 'red')};
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: center;
+    font-weight: bold;
+    animation: fade-in-out 3s ease-in-out;
+
+    @keyframes fade-in-out {
+        0% {
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
 `;

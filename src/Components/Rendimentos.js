@@ -160,10 +160,14 @@ export default function Rendimentos() {
     
                 if (Array.isArray(contratos)) {
                     const updatedContratos = contratos.map(contrato => {
+                        const rendimentoParaUsar = userData.POSSUIRENDIMENTOESPECIAL 
+                            ? userData.VALORRENDIMENTOESPECIAL 
+                            : rendimentoAtual;
+                        
                         if (consultarALLOWSELL(contrato.ALLOWSELL)) {
                             return {
                                 ...contrato,
-                                LUCRO_OBTIDO: contrato.LUCRO_OBTIDO + (rendimentoAtual / daysInMonth)
+                                LUCRO_OBTIDO: contrato.LUCRO_OBTIDO + (rendimentoParaUsar / daysInMonth)
                             };
                         } else {
                             return contrato;
@@ -187,6 +191,7 @@ export default function Rendimentos() {
             console.error('Erro ao fazer login ou realizar POST:', error);
         }
     };
+    
     
     useEffect(() => {
         fetchRendimentoMensal();
@@ -219,7 +224,7 @@ export default function Rendimentos() {
                 <LastRendimento>
                     <div>
                         <p>ÚLTIMA VALORIZAÇÃO</p>
-                        <span>{lastRendimento.data + ' | ' + lastRendimento.hora + ' | ' + lastRendimento.porcentagem + '%'}</span>
+                        <span>{lastRendimento.data + ' | ' + lastRendimento.hora + '%'}</span>
                     </div>
                 </LastRendimento>
 

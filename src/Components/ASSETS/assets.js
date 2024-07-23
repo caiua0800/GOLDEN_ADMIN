@@ -1,7 +1,6 @@
 // assets.js
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-
 
 // Função para adicionar uma semana a uma data
 export function addWeekToDateString(dateString) {
@@ -67,6 +66,8 @@ export const getClients = async (setUsers) => {
                 COIN_VALUE_ATUAL: userData.COIN_VALUE_ATUAL,
                 LUCRO_OBTIDO: totalLucro,
                 DATACRIACAO: userData.DATACRIACAO,
+                POSSUIRENDIMENTOESPECIAL: userData.POSSUIRENDIMENTOESPECIAL,
+                VALORRENDIMENTOESPECIAL: userData.VALORRENDIMENTOESPECIAL,
             };
 
             userList.push(user);
@@ -77,3 +78,21 @@ export const getClients = async (setUsers) => {
         console.error("Error getting users:", error);
     }
 };
+
+export async function getMonthlyYield() {
+    try {
+        const rendimentoDocRef = doc(db, "SYSTEM_VARIABLES", "RENDIMENTO");
+        const rendimentoDocSnapshot = await getDoc(rendimentoDocRef);
+
+        if (rendimentoDocSnapshot.exists()) {
+            const data = rendimentoDocSnapshot.data();
+            return data.RENDIMENTO_MENSAL;
+        } else {
+            console.log("O documento não existe!");
+            return null;
+        }
+    } catch (error) {
+        console.error("Erro ao obter rendimento mensal: ", error);
+        return null;
+    }
+}

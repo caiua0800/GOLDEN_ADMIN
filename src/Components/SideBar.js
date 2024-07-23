@@ -99,9 +99,10 @@ const NavItemsWrapper = styled.div`
 const NavItemsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  // background: #219ebc;
   align-items: center;
   box-sizing: border-box;
+  gap: 5px;
 `;
 
 const NavItem = styled.div`
@@ -114,8 +115,10 @@ const NavItem = styled.div`
   transition: background 0.3s, transform 0.3s;
   cursor: pointer;
   box-sizing: border-box;
+  
 
   a {
+    background: #219ebc;
     text-decoration: none;
     color: rgba(0,0,0,0.6);
     font-weight: 600;
