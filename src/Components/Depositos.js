@@ -48,31 +48,32 @@ export default function Depositos() {
     }, [dispatch]);
 
     const filteredDepositos = search.length > 0
-        ? depositos.filter(user => (user.NAME && user.NAME.includes(search.toUpperCase())) ||
-            (user.ID && user.ID.includes(search.toUpperCase())))
-        : depositos;
+    ? depositos.filter(user => (user.NAME && user.NAME.includes(search.toUpperCase())) ||
+        (user.ID && user.ID.includes(search.toUpperCase())))
+    : depositos.filter(user => !user.VISTO); // Filter by VISTO: false
 
     const handleSetAceito = (userId, contratoId) => {
         dispatch(setAceito(userId, contratoId, true));
-        dispatch(getDepositos())
+        dispatch(getDepositos());
     };
 
     const handleSetNegado = (userId, contratoId) => {
         dispatch(setAceito(userId, contratoId, false));
-        dispatch(getDepositos())
+        dispatch(getDepositos());
     };
 
     const reload_ico = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com.png?alt=media&token=239c954a-c1fc-4829-839e-694b067a90f5';
 
     const handleReload = () => {
         dispatch(getDepositos());
-    }
+    };
 
     // Filter clients based on clientSearch state
     const filteredClients = clients.filter(client =>
         (client.NAME && client.NAME.toUpperCase().includes(clientSearch.toUpperCase())) ||
         (client.CPF && client.CPF.includes(clientSearch))
     );
+
 
     const handleHideModal = () => {
         setModal(false);
