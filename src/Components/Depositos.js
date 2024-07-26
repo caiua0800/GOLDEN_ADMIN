@@ -5,7 +5,7 @@ import { getDepositos, setAceito } from '../redux/actions';
 import { addWeekToDateString, formatNumber, getClients } from "./ASSETS/assets";
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, updateDoc, arrayUnion, getDoc } from "@firebase/firestore";
-import { firebaseConfig } from "../DATABASE/firebaseConfig";
+import { db } from "../DATABASE/firebaseConfig";
 
 const growWidth = keyframes`
   0% {
@@ -38,9 +38,6 @@ export default function Depositos() {
     const [modal, setModal] = useState(false);
     const [coinsQTDE, setCoinsQTDE] = useState(1);
     const [payMethod, setPayMethod] = useState('PIX')
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
 
     useEffect(() => {
         dispatch(getDepositos());

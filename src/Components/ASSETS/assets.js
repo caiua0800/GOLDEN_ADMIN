@@ -1,6 +1,6 @@
 // assets.js
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { db } from './firebaseConfig';
+import { db } from '../../DATABASE/firebaseConfig';
 
 // Função para adicionar uma semana a uma data
 export function addWeekToDateString(dateString) {

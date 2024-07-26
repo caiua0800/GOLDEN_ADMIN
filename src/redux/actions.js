@@ -335,17 +335,21 @@ export const createUser = (name, cpf, email, contact, cargo, password) => {
 };
 
 export const consultarALLOWSELL = (dateString) => {
-    // Split the input date string to get day, month, and year
-    const [day, month, year] = dateString.split('/').map(Number);
+    if(dateString){
+        const [day, month, year] = dateString.split('/').map(Number);
     
-    // Create a Date object for the input date
-    const inputDate = new Date(year, month - 1, day); // Note: months are 0-indexed in JS Date
+        // Create a Date object for the input date
+        const inputDate = new Date(year, month - 1, day); // Note: months are 0-indexed in JS Date
+        
+        // Get the current date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set hours to 0 to compare only the date part
     
-    // Get the current date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set hours to 0 to compare only the date part
+        // Compare dates
+        return today < inputDate;
+    }else{
+        return false;
+    }
 
-    // Compare dates
-    return today < inputDate;
 }
 

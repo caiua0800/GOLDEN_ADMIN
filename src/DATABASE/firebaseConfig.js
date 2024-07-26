@@ -1,15 +1,17 @@
+// firebaseConfig.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCnwSOjrqasUNSCp6UrK2moHd1OtLUMj28",
-  authDomain: "wldata.firebaseapp.com",
-  projectId: "wldata",
-  storageBucket: "wldata.appspot.com",
-  messagingSenderId: "86184173654",
-  appId: "1:86184173654:web:9463c36b71d142b684dbf7"
+  apiKey: "AIzaSyBS2YwOCmnJKF4AgnjEqB0Huy2146YitII",
+  authDomain: "golden-token-62a99.firebaseapp.com",
+  projectId: "golden-token-62a99",
+  storageBucket: "golden-token-62a99.appspot.com",
+  messagingSenderId: "819750858832",
+  appId: "1:819750858832:web:6d331de11d2dc5750a6155",
+  measurementId: "G-YY52V2CG6N"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -17,4 +19,4 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { firebaseConfig, auth, db, storage };
+export { auth, db, storage };

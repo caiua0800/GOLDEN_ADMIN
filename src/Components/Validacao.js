@@ -4,22 +4,9 @@ import { formatCPF, getClients, formatNumber } from "./ASSETS/assets";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
 import "firebase/compat/firestore";
-
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCnwSOjrqasUNSCp6UrK2moHd1OtLUMj28",
-    authDomain: "wldata.firebaseapp.com",
-    projectId: "wldata",
-    storageBucket: "wldata.appspot.com",
-    messagingSenderId: "86184173654",
-    appId: "1:86184173654:web:9463c36b71d142b684dbf7"
-};
+import { db as firestore } from "../DATABASE/firebaseConfig"; // Certifique-se de que esta importação está correta
 
 const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e'
-
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
-const firestore = firebase.firestore();
 
 export default function Validacao() {
     const [users, setUsers] = useState([]);
@@ -30,7 +17,7 @@ export default function Validacao() {
     }, []);
 
     const filteredClients = search.length > 0
-        ? users.filter(user => user.NAME.includes(search.toUpperCase()))
+        ? users.filter(user => user.NAME.toUpperCase().includes(search.toUpperCase()))
         : users.filter(user => !user.VERIFICADO && user.DOCSENVIADOS);
 
     const handleCreateClient = () => {

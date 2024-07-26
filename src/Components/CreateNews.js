@@ -1,23 +1,8 @@
+// createNews.js
 import React, { useState } from "react";
 import styled from "styled-components";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-import firebase from "firebase/compat/app";
-import "firebase/compat/storage";
-import "firebase/compat/firestore"; 
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCnwSOjrqasUNSCp6UrK2moHd1OtLUMj28",
-    authDomain: "wldata.firebaseapp.com",
-    projectId: "wldata",
-    storageBucket: "wldata.appspot.com",
-    messagingSenderId: "86184173654",
-    appId: "1:86184173654:web:9463c36b71d142b684dbf7"
-};
-
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
-const firestore = firebase.firestore();
+import { storage, db } from "../DATABASE/firebaseConfig"; 
 
 function ModalComponent({ onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
@@ -26,7 +11,6 @@ function ModalComponent({ onClose }) {
     const [imageUrl, setImageUrl] = useState(null);
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
-
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -79,7 +63,7 @@ function ModalComponent({ onClose }) {
         const date = new Date();
         const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
 
-        firestore.collection('NEWS').add({
+        db.collection('NEWS').add({
             title: title,
             body: body,
             imageUrl: imageUrl,

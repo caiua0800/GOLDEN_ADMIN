@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { collection, getDocs, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { db } from '../firebaseConfig';
+import { db } from '../DATABASE/firebaseConfig';
 import { createUser } from '../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 
