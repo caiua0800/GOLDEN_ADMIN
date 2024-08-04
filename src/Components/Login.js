@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from 'react-redux';
 import rootReducer from "../redux/root-reducer";
 import userActionTypes from "../redux/user/action-types";
 import { loginUser } from '../redux/actions';
 import Loading from "./Loader";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db, auth } from "../DATABASE/firebaseConfig";
+import { setDoc, doc } from "firebase/firestore";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
 
@@ -12,12 +16,11 @@ export default function Login() {
     const dispatch = useDispatch();
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
-    const [load, setLoad] = useState(false)
+    const [load, setLoad] = useState(false);
 
     const handleLoginClick = () => {
         dispatch(loginUser(email, pass, setLoad));
     }
-
 
     return (
         <LoginContainer>

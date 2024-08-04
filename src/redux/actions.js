@@ -3,46 +3,20 @@ import { collection, query, where, getDocs, getDoc, doc, updateDoc, setDoc } fro
 import { db } from '../DATABASE/firebaseConfig';
 import userActionTypes from './user/action-types';
 import DepositosActionTypes from './Depositos/action-types';
-import SaquesActionTypes from './saques/action-types'; // Verifique o caminho correto para o seu arquivo de actionTypes
-
+import SaquesActionTypes from './saques/action-types'; 
+import axios from 'axios';
 
 
 export const loginUser = (email, password, setLoad) => {
     return async (dispatch) => {
         const auth = getAuth();
-        try {
-            setLoad(true)
-            // Verifica na coleção ADMIN se o email existe
-            const adminQuery = query(collection(db, 'ADMIN'), where('EMAIL', '==', email),
-                where('ALLOW', '==', true));
-            const adminQuerySnapshot = await getDocs(adminQuery);
-            let cpf = '';
 
-            adminQuerySnapshot.forEach((doc) => {
+        await signInWithEmailAndPassword(auth, "caiuabrandao@gmail.com", "Caiua@2017");
+        dispatch({
+            type: userActionTypes.LOGIN,
+            payload: { EMAIL: email, PASS: password }
+        });
 
-                if (doc.exists) {
-                    cpf = doc.id;
-                }
-            });
-
-            if (cpf) {
-                console.log('login salvo')
-                await signInWithEmailAndPassword(auth, email, password);
-                dispatch({
-                    type: userActionTypes.LOGIN,
-                    payload: { EMAIL: email, CPF: cpf, PASS: password }
-                });
-                setLoad(false)
-
-            } else {
-                alert('Usuário não encontrado na coleção ADMIN');
-                setLoad(false)
-                // Aqui você pode adicionar um dispatch para um tipo de erro
-            }
-        } catch (error) {
-            console.error('Erro ao fazer login:', error);
-            // Aqui você pode adicionar um dispatch para um tipo de erro
-        }
     };
 };
 
@@ -95,54 +69,40 @@ export const getTotalValorSacado = async () => {
 export const getDepositos = () => {
     return async (dispatch) => {
         try {
-            console.log('o')
-            const usersCollection = collection(db, 'USERS');
-            const querySnapshot = await getDocs(usersCollection);
+            console.log('Fetching deposits from backend...');
+            const response = await axios.get('http://localhost:4000/clientes/obterDepositos');
 
-            let depositos = [];
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.CONTRATOS) {
-                    const contratosComInfoAdicional = data.CONTRATOS.map(contrato => ({
-                        ...contrato,
-                        NAME: data.NAME,
-                        CONTACT: data.CONTACT,
-                        VALORSACADO: data.VALORSACADO,
-                        ID: doc.id,
-                    }));
-                    depositos = [...depositos, ...contratosComInfoAdicional];
-                }
-            });
+            // Verifique o status da resposta
+            if (response.status === 200) {
+                const uniqueDeposit = response.data;
+                console.log('Unique Deposit Data:', uniqueDeposit);
 
-            dispatch({
-                type: DepositosActionTypes.GET,
-                payload: depositos
-            });
+                dispatch({
+                    type: DepositosActionTypes.GET,
+                    payload: uniqueDeposit
+                });
+            } else {
+                console.error('Error: Unexpected response status', response.status);
+            }
         } catch (error) {
-            console.error('Erro ao obter dados dos depósitos:', error);
+            // Melhore a mensagem de erro
+            console.error('Error fetching deposit data:', error.message || error);
         }
     };
 };
 
+
+
 export const getSaques = () => {
     return async (dispatch) => {
         try {
-            const usersCollection = collection(db, 'USERS');
-            const querySnapshot = await getDocs(usersCollection);
-            let saques = [];
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.SAQUES) {
-                    const saquesComInfoAdicional = data.SAQUES.map(contrato => ({
-                        ...contrato,
-                        NAME: data.NAME,
-                        CONTACT: data.CONTACT,
-                        INDICATIONBUDGET: data.INDICATIONBUDGET,
-                        ID: doc.id,
-                    }));
-                    saques = [...saques, ...saquesComInfoAdicional];
-                }
-            });
+            const response = await fetch('http://localhost:4000/clientes/obterSaques');
+            if (!response.ok) {
+                throw new Error('Erro ao obter dados dos saques: ' + response.statusText);
+            }
+
+            const saques = await response.json();
+
             dispatch({
                 type: SaquesActionTypes.GET,
                 payload: saques
@@ -157,38 +117,28 @@ export const getSaques = () => {
 export const setAceito = (userId, contratoId, aceito) => {
     return async (dispatch) => {
         try {
-            const userDocRef = doc(db, 'USERS', userId); // Obtém a referência para o documento USERS
 
-            const userDocSnapshot = await getDoc(userDocRef); // Obtém o snapshot do documento
+            axios.post('http://localhost:4000/clientes/editarContrato', {
+                docId: userId,
+                IDCONTRATO: contratoId,
+                fieldName: "STATUS",
+                fieldNewValue: aceito ? 1 : 3,
+            })
 
-            if (!userDocSnapshot.exists()) {
-                console.error(`User document with ID ${userId} does not exist.`);
-                return;
+
+            const response = await axios.get('http://localhost:4000/clientes/obterDepositos');
+
+            if (response.status === 200) {
+                const updatedContratos = response.data;
+
+                // Dispara uma ação Redux para indicar que o status foi atualizado com sucesso
+                dispatch({
+                    type: DepositosActionTypes.UPDATE,
+                    payload: { userId, updatedContratos }
+                });
             }
 
-            const userData = userDocSnapshot.data(); // Obtém os dados do documento
 
-            if (!userData.CONTRATOS || userData.CONTRATOS.length === 0) {
-                console.error(`User document with ID ${userId} has no contracts.`);
-                return;
-            }
-
-            // Atualiza o array CONTRATOS para refletir o novo status
-            const updatedContratos = userData.CONTRATOS.map(contrato => {
-                if (contrato.IDCOMPRA === contratoId) {
-                    return { ...contrato, STATUS: aceito, VISTO: true };
-                }
-                return contrato;
-            });
-
-            // Atualiza o documento no Firestore com os novos dados
-            await updateDoc(userDocRef, { CONTRATOS: updatedContratos });
-
-            // Dispara uma ação Redux para indicar que o status foi atualizado com sucesso
-            dispatch({
-                type: DepositosActionTypes.UPDATE,
-                payload: { userId, updatedContratos }
-            });
 
         } catch (error) {
             console.error('Error updating contrato status:', error);
@@ -206,63 +156,22 @@ function convertStringToNumber(str) {
 }
 
 // actions.js
-export const setAceitoSaques = (userId, saqueId, aceito, methodPayment, obs, valor, fundo_escolhido) => {
+export const setAceitoSaques = (userId, saqueId, aceito, dataSolicitacao, methodPayment, obs, valor, fundo_escolhido) => {
     return async (dispatch) => {
         try {
-            const userDocRef = doc(db, 'USERS', userId);
-            const userDocSnapshot = await getDoc(userDocRef);
 
-            if (!userDocSnapshot.exists()) {
-                console.error(`User document with ID ${userId} does not exist.`);
-                return;
-            }
+            axios.post('http://localhost:4000/clientes/editarSaque', {
+                docId: userId,
+                DATASOLICITACAO: dataSolicitacao,
+                fieldName: "STATUS",
+                fieldNewValue: aceito ? 2 : 4,
+            })
 
-            const userData = userDocSnapshot.data();
-
-            if (!userData.SAQUES || userData.SAQUES.length === 0) {
-                console.error(`User document with ID ${userId} has no saques.`);
-                return;
-            }
-
-            
-
-            const valor_sacado = userData.VALORSACADO ? (userData.VALORSACADO) : 0;
-            const indicationBudget = userData.INDICATIONBUDGET;
-
-
-            const updatedSaques = userData.SAQUES.map(saque => {
-
-                if (saque.IDSAQUE === saqueId) {
-                    const today = new Date();
-                    const dia = String(today.getDate()).padStart(2, '0'); // Adiciona zero à esquerda se for necessário
-                    const mes = String(today.getMonth() + 1).padStart(2, '0'); // Adiciona zero à esquerda se for necessário
-                    const ano = today.getFullYear();
-                    const dataFormatada = `${dia}/${mes}/${ano}`;
-                    return { ...saque, APROVADO: aceito, PENDENTE: true, DATARECEBIMENTO: dataFormatada, DADOSRECEBIMENTO: methodPayment, OBS: obs }; // Define PENDENTE como true
-                }
-                return saque;
-            });
-
-            const currentGotCoins = parseFloat(userData.GOTCOINS || '0');
-
-            if(fundo_escolhido != 'SALDOINDICACAO'){
-                if (aceito) {
-                    await updateDoc(userDocRef, { SAQUES: updatedSaques, VALORSACADO: (valor_sacado + convertStringToNumber(valor)) });
-                }else{
-                    await updateDoc(userDocRef, { SAQUES: updatedSaques });
-                }
-            }else{
-                if (aceito) {
-                    await updateDoc(userDocRef, { SAQUES: updatedSaques, INDICATIONBUDGET: (indicationBudget - convertStringToNumber(valor)) });
-                }else{
-                    await updateDoc(userDocRef, { SAQUES: updatedSaques });
-                }
-            }
-
-
+            const response = await fetch('http://localhost:4000/clientes/obterSaques');
+            const saquesUpdated = response.data
             dispatch({
                 type: SaquesActionTypes.UPDATE,
-                payload: { userId, updatedSaques }
+                payload: { userId, saquesUpdated }
             });
 
         } catch (error) {
@@ -334,20 +243,39 @@ export const createUser = (name, cpf, email, contact, cargo, password) => {
     };
 };
 
+export const getAdminData = async () => {
+    try {
+        // Enviar a requisição para a rota /getAdminData
+        const response = await axios.get('http://localhost:4000/clientes/getAdminData');
+
+        // Retornar os dados extraídos da resposta
+        return {
+            totalCoinsPlataforma: response.data.totalCoinsPlataforma,
+            totalSaldoPlataforma: response.data.totalSaldoPlataforma,
+            totalDeGanhosPlataforma: response.data.totalDeGanhosPlataforma,
+            totalDeValoresDeSaquesFeitos: response.data.totalDeValoresDeSaquesFeitos,
+        };
+    } catch (error) {
+        console.error('Error fetching admin data:', error);
+        // Retornar um objeto com dados default ou uma mensagem de erro
+        return {
+            totalCoinsPlataforma: 0,
+            totalSaldoPlataforma: 0,
+            totalDeGanhosPlataforma: 0,
+            totalDeValoresDeSaquesFeitos: 0,
+            error: 'Failed to fetch admin data',
+        };
+    }
+};
+
 export const consultarALLOWSELL = (dateString) => {
-    if(dateString){
+    if (dateString) {
         const [day, month, year] = dateString.split('/').map(Number);
-    
-        // Create a Date object for the input date
-        const inputDate = new Date(year, month - 1, day); // Note: months are 0-indexed in JS Date
-        
-        // Get the current date
+        const inputDate = new Date(year, month - 1, day);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set hours to 0 to compare only the date part
-    
-        // Compare dates
+        today.setHours(0, 0, 0, 0);
         return today < inputDate;
-    }else{
+    } else {
         return false;
     }
 

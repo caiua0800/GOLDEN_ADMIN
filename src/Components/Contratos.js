@@ -1,81 +1,77 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
-import { getDepositos, getTotalValorSacado, consultarALLOWSELL } from '../redux/actions';
-import { formatNumber } from "./ASSETS/assets";
+import { getDepositos, getAdminData } from '../redux/actions';
+import debounce from 'lodash/debounce';
+import Pagination from './Pagination';
+import { formatDate, formatCurrencyBRL } from "./ASSETS/assets";
 
-
+const PAGE_SIZE = 10; // Número de itens por página
 
 export default function Contratos() {
     const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState(''); // Estado para filtro por status
-    const [dataInicialCompraFilter, setDataInicialCompraFilter] = useState(''); // Estado para filtro por data inicial de compra
-    const [dataFinalCompraFilter, setDataFinalCompraFilter] = useState(''); // Estado para filtro por data final de compra
-    const [total, setTotal] = useState(0);
-    const [totalDeGanhos, setTotalDeGanhos] = useState(0);
-    const [totalCOINS, setTotalCOINS] = useState(0);
+    const [statusFilter, setStatusFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     const dispatch = useDispatch();
     const depositos = useSelector((state) => state.DepositosReducer.depositos);
-    const [totalSacado, setTotalSacado] = useState(0);
 
-    useEffect(() => {
-        dispatch(getDepositos());
-
-        async function fetchTotalValorSacado() {
-            const total = await getTotalValorSacado();
-            setTotalSacado(total);
-        }
-
-        fetchTotalValorSacado();
-    }, [dispatch]);
-
-
-    const filteredClients = depositos.filter(user => {
-        const matchesSearch = (user.NAME && user.NAME.toUpperCase().includes(search.toUpperCase())) ||
-            (user.ID && user.ID.toUpperCase().includes(search.toUpperCase()));
-        const matchesStatus = statusFilter === '' ||
-            (statusFilter === 'PAGOS' && user.STATUS) ||
-            (statusFilter === 'NÃO PAGOS' && !user.STATUS);
-        const matchesDataInicial = dataInicialCompraFilter === '' ||
-            (user.PURCHASEDATE && user.PURCHASEDATE >= dataInicialCompraFilter);
-        const matchesDataFinal = dataFinalCompraFilter === '' ||
-            (user.PURCHASEDATE && user.PURCHASEDATE <= dataFinalCompraFilter);
-        return matchesSearch && matchesStatus && matchesDataInicial && matchesDataFinal;
+    const [adminData, setAdminData] = useState({
+        totalCoinsPlataforma: 0,
+        totalSaldoPlataforma: '0,00',
+        totalDeGanhosPlataforma: '0,00',
+        error: ''
     });
 
-    const handleSearchChange = (e) => {
-        setSearch(e.target.value);
-    };
-    const handleStatusChange = (e) => {
-        setStatusFilter(e.target.value);
-    };
-    const handleDataInicialChange = (e) => {
-        setDataInicialCompraFilter(e.target.value);
-    };
-    const handleDataFinalChange = (e) => {
-        setDataFinalCompraFilter(e.target.value);
-    };
-
-
     useEffect(() => {
-        let sum = 0;   // total investidos
-        let sum2 = 0;  // total de ganhos
-        let sum3 = 0;  // total de tokens
-        filteredClients.forEach(user => {
-            if (user.STATUS) {
-                sum += user.TOTALSPENT;
-                sum2 += ((user.TOTALSPENT * (user.LUCRO_OBTIDO / 100)))
-
-                if (consultarALLOWSELL(user.ALLOWSELL))
-                    sum3 += user.COINS;
+        const fetchData = async () => {
+            try {
+                dispatch(getDepositos());
+                const data = await getAdminData(); // Espera pela Promise
+                setAdminData(data); // Atualiza o estado com os dados retornados
+            } catch (error) {
+                console.error('Failed to fetch admin data:', error);
+                setAdminData({
+                    totalCoinsPlataforma: 0,
+                    totalSaldoPlataforma: '0,00',
+                    totalDeGanhosPlataforma: '0,00',
+                    error: 'Failed to fetch admin data'
+                });
             }
-        });
-        setTotal(sum - totalSacado);
-        setTotalDeGanhos(sum2);
-        setTotalCOINS(sum3);
-    }, [filteredClients]);
+        };
+        fetchData();
+    }, [dispatch]);
 
+    const filteredClients = useMemo(() => {
+        return depositos.filter(user => {
+            const matchesSearch = (user.NAME && user.NAME.toUpperCase().includes(search.toUpperCase())) ||
+                (user.ID && user.ID.toUpperCase().includes(search.toUpperCase())) ||
+                (user.PURCHASEDATE && user.PURCHASEDATE.includes(search));
+            const matchesStatus = statusFilter === '' ||
+                (statusFilter === 'FINALIZADOS' && user.STATUS === 2) ||
+                (statusFilter === 'VALORIZANDO' && user.STATUS === 1) ||
+                (statusFilter === 'CANCELADOS' && user.STATUS === 3); // Assuming '3' represents 'CANCELADOS'
+            return matchesSearch && matchesStatus;
+        });
+    }, [depositos, search, statusFilter]);
+
+    const totalPages = Math.ceil(filteredClients.length / PAGE_SIZE);
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const endIndex = startIndex + PAGE_SIZE;
+    const paginatedClients = filteredClients.slice(startIndex, endIndex);
+
+    const debouncedSearch = useMemo(() => debounce((e) => {
+        setSearch(e.target.value);
+        setCurrentPage(1);
+    }, 300), []);
+
+    const valorGanho = (valorInvestido, lucro_atual) => {
+
+        let valorINVESTIDO = (typeof valorInvestido === 'string' ? parseFloat(valorInvestido) : valorInvestido)
+
+        return ((lucro_atual/100) * valorINVESTIDO) + valorINVESTIDO
+
+    }
 
     return (
         <ContratosContainer>
@@ -85,20 +81,19 @@ export default function Contratos() {
                     <Box bgColor="#f2f2f2">
                         <BoxContent>
                             <BoxTitle>VALOR TOTAL</BoxTitle>
-                            <span>$ {formatNumber(total)}</span>
+                            <span>U$ {formatCurrencyBRL(adminData.totalSaldoPlataforma)}</span>
                         </BoxContent>
                     </Box>
-
                     <Box bgColor="#f2f2f2">
                         <BoxContent>
                             <BoxTitle>QUANTIDADE TOTAL DE TOKENS</BoxTitle>
-                            <span>{parseInt(totalCOINS)}</span>
+                            <span>{adminData.totalCoinsPlataforma}</span>
                         </BoxContent>
                     </Box>
                     <Box bgColor="#f2f2f2">
                         <BoxContent>
                             <BoxTitle>TOTAL DE GANHOS</BoxTitle>
-                            <span>R$ {formatNumber(totalDeGanhos)}</span>
+                            <span>U$ {formatCurrencyBRL(adminData.totalDeGanhosPlataforma)}</span>
                         </BoxContent>
                     </Box>
                 </Boxes>
@@ -110,25 +105,20 @@ export default function Contratos() {
                     <SearchArea>
                         <FilterDiv>
                             <h4>STATUS</h4>
-                            <select onChange={handleStatusChange}>
+                            <select onChange={(e) => setStatusFilter(e.target.value)}>
                                 <option value="">TODOS</option>
-                                <option value="PAGOS">PAGOS</option>
-                                <option value="NÃO PAGOS">NÃO PAGOS</option>
+                                <option value="FINALIZADOS">FINALIZADOS</option>
+                                <option value="VALORIZANDO">VALORIZANDO</option>
+                                <option value="CANCELADOS">CANCELADOS</option>
                             </select>
                         </FilterDiv>
-
-                        <FilterDiv>
-                            <h4>DATA INICIAL DA COMPRA</h4>
-                            <input type="date" onChange={handleDataInicialChange} />
-                        </FilterDiv>
-
-                        {/* <FilterDiv>
-                            <h4>DATA FINAL DA COMPRA</h4>
-                            <input type="date" onChange={handleDataFinalChange} />
-                        </FilterDiv> */}
                     </SearchArea>
                     <SecondSearchBar>
-                        <input type="text" placeholder="Nome Do Cliente" onChange={handleSearchChange} />
+                        <input
+                            type="text"
+                            placeholder="Nome Do Cliente ou Data de Compra"
+                            onChange={debouncedSearch}
+                        />
                     </SecondSearchBar>
                 </SearchAreaContent>
             </Contracts>
@@ -139,33 +129,40 @@ export default function Contratos() {
                         <TableRow>
                             <TableHeaderCell>ID</TableHeaderCell>
                             <TableHeaderCell>CLIENTE</TableHeaderCell>
+                            <TableHeaderCell>CPF</TableHeaderCell>
                             <TableHeaderCell>DATA DE COMPRA</TableHeaderCell>
                             <TableHeaderCell>QUANTIDADE COINS</TableHeaderCell>
                             <TableHeaderCell>VALOR UNI.</TableHeaderCell>
                             <TableHeaderCell>VALOR TOTAL</TableHeaderCell>
-
                             <TableHeaderCell>TOTAL GANHO</TableHeaderCell>
-                            {/* <TableHeaderCell>RENDENDO ATÉ</TableHeaderCell> */}
+                            <TableHeaderCell>FINALIZA EM</TableHeaderCell>
                             <TableHeaderCell>STATUS</TableHeaderCell>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredClients.map((user, index) => (
+                        {paginatedClients.map((user, index) => (
                             <TableRow key={index}>
                                 <TableCell>{user.IDCOMPRA}</TableCell>
-                                <TableCell>{user.NAME}</TableCell>
-                                <TableCell>{user.PURCHASEDATE}</TableCell>
+                                <TableCell>{user.CLIENT_NAME.toUpperCase()}</TableCell>
+                                <TableCell>{user.CLIENT_CPF}</TableCell>
+                                <TableCell>{formatDate(user.PURCHASEDATE)}</TableCell>
                                 <TableCell>{user.COINS}</TableCell>
-                                <TableCell>$ {user.COINVALUE}</TableCell>
-                                <TableCell>$ {formatNumber(user.TOTALSPENT)}</TableCell>
-                                <TableCell>$ {formatNumber((user.TOTALSPENT * (user.LUCRO_OBTIDO / 100)))}</TableCell>
-                                <TableCell>{consultarALLOWSELL(user.ALLOWSELL) ? 'Valorizando' : 'Contrato Finalizado'}</TableCell>
+                                <TableCell>U$ {user.COINVALUE}</TableCell>
+                                <TableCell>U$ {user.TOTALSPENT}</TableCell>
+                                <TableCell>U$ {valorGanho(user.TOTALSPENT, user.RENDIMENTO_ATUAL).toFixed(2)}</TableCell>
+                                <TableCell>{formatDate(user.YIELDTERM)}</TableCell>
+                                <TableCell>{user.STATUS === 1 ? 'Valorizando' : user.STATUS === 2 ? 'Contrato Finalizado' : 'Cancelado'}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
 
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={page => setCurrentPage(page)}
+            />
         </ContratosContainer>
     );
 }

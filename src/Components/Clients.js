@@ -1,77 +1,64 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { formatCPF, getClients, formatNumber, getMonthlyYield } from "./ASSETS/assets";
-import { db } from "../DATABASE/firebaseConfig";
-import { doc, updateDoc } from "firebase/firestore";
+import { formatCPF, getClients, formatNumber, formatDate } from "./ASSETS/assets";
+import Pagination from "./Pagination"; 
+import PaginaCliente from "./PaginaDoCliente/PaginaCliente";
 
 export default function Clientes() {
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState('');
-    const [specialIncome, setSpecialIncome] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [newSpecialIncome, setNewSpecialIncome] = useState('');
-    const [rendimentoPadrao, setRendimentoPadrao] = useState(0);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const [hasInvestedMoney, setHasInvestedMoney] = useState(false); 
+    const [selectedClient, setSelectedClient] = useState(null); 
+    const [existClient, setExistClient] = useState(false); 
+
+    // Estado para paginação
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10); 
 
     useEffect(() => {
         getClients(setUsers);
-
-        getMonthlyYield().then((res) => {
-            setRendimentoPadrao(res);
-            console.log(res);
-        })
+        console.log(users);
     }, []);
 
     const handleCheckboxChange = () => {
-        setSpecialIncome(prevState => !prevState);
+        setHasInvestedMoney(prevState => !prevState); 
     };
 
     const filteredClients = users.filter(user => {
-        const matchesSearch = user.NAME.includes(search.toUpperCase()) || user.CPF.includes(search.toUpperCase());
-        const matchesSpecialIncome = !specialIncome || user.POSSUIRENDIMENTOESPECIAL;
-        return matchesSearch && matchesSpecialIncome;
+        const searchLower = search.toLowerCase();
+        const matchesSearch = user.NAME.toLowerCase().includes(searchLower) || user.CPF.includes(searchLower);
+        const matchesInvestedMoney = !hasInvestedMoney || user.TOTAL_SPENT > 0; 
+        return matchesSearch && matchesInvestedMoney;
     });
+
+    const indexOfLastClient = currentPage * itemsPerPage;
+    const indexOfFirstClient = indexOfLastClient - itemsPerPage;
+    const currentClients = filteredClients.slice(indexOfFirstClient, indexOfLastClient);
+
+    const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
     const handlereateClient = () => {
         window.location.href = '/criarcliente';
     };
 
-    const handleCellDoubleClick = (user) => {
-        setSelectedUser(user);
-        setNewSpecialIncome(user.VALORRENDIMENTOESPECIAL || '');
-        setShowModal(true);
-    };
+    const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
 
-    function formatCPF(cpf) {
-        return cpf.replace(/\D/g, '');
+    const handleSelectClient = (client) => {
+        setExistClient(true);
+        setSelectedClient(client);
+        console.log('Client selected:', client);
     }
 
-    const handleSaveSpecialIncome = async () => {
-        if (selectedUser && newSpecialIncome !== '') {
-            try {
-                const userDoc = doc(db, 'USERS', formatCPF(selectedUser.CPF));
-                await updateDoc(userDoc, { VALORRENDIMENTOESPECIAL: newSpecialIncome });
-                // Atualizando a lista de usuários no estado
-                setUsers(prevUsers => prevUsers.map(user => 
-                    user.CPF === selectedUser.CPF ? { ...user, VALORRENDIMENTOESPECIAL: newSpecialIncome, POSSUIRENDIMENTOESPECIAL: true } : user
-                ));
-                setShowModal(false);
-                setMessage({ type: 'success', text: 'Rendimento atualizado com sucesso!' });
-            } catch (error) {
-                setMessage({ type: 'error', text: 'Erro ao atualizar rendimento. Tente novamente.' });
-            }
-        }
-    };
-
-    const handleReturnTypeOfRendimento = (taxa) => {
-        if(taxa > rendimentoPadrao) return 'RENDIMENTO ESPECIAL';
-        else if(taxa == rendimentoPadrao) return 'RENDIMENTO PADRÃO'
-        else return 'RENDIMENTO ABAIXO DA MÉDIA'
+    const handleUnselectClient = () => {
+        setExistClient(false);
+        setSelectedClient(null);
     }
 
     return (
         <ClientsContainer>
+
+
+            <PaginaCliente handleClose={handleUnselectClient} clienteData={selectedClient} />
             <ClientFirstContent>
                 <AreaTitle>CLIENTES</AreaTitle>
                 <AddClient onClick={handlereateClient}>+ ADICIONAR CLIENTE</AddClient>
@@ -87,12 +74,12 @@ export default function Clientes() {
                     />
                 </SearchBar>
 
-                <FiltrarClienteEspecial>
+                <FiltrarClienteInvestido>
                     <div>
-                        <input type="checkbox" checked={specialIncome} onChange={handleCheckboxChange} />
-                        <label>COM RENDIMENTO ESPECIAL</label>
+                        <input type="checkbox" checked={hasInvestedMoney} onChange={handleCheckboxChange} />
+                        <label>COM DINHEIRO INVESTIDO</label>
                     </div>
-                </FiltrarClienteEspecial>
+                </FiltrarClienteInvestido>
 
                 <ClientsTable>
                     <TableContainer>
@@ -107,147 +94,36 @@ export default function Clientes() {
                                     <TableHeaderCell>TOKENS OBTIDOS</TableHeaderCell>
                                     <TableHeaderCell>TOTAL INVESTIDO</TableHeaderCell>
                                     <TableHeaderCell>TOTAL GANHO</TableHeaderCell>
-                                    <TableHeaderCell>RENDIMENTO</TableHeaderCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredClients.map((user, index) => (
-                                    <TableRow key={index}>
+                                {currentClients.map((user, index) => (
+                                    <TableRow key={index} onClick={() => handleSelectClient(user)}>
                                         <TableCell>{user.NAME}</TableCell>
                                         <TableCell>{formatCPF(user.CPF)}</TableCell>
-                                        <TableCell>{user.DATACRIACAO}</TableCell>
+                                        <TableCell>{formatDate(user.DATACRIACAO)}</TableCell>
                                         <TableCell>{user.EMAIL}</TableCell>
-                                        <TableCell>{user.CONTACT}</TableCell>
-                                        <TableCell>{user.TOTALCOINS}</TableCell>
-                                        <TableCell>$ {formatNumber(user.TOTALPAGO)}</TableCell>
-                                        <TableCell>$ {formatNumber(user.LUCRO_OBTIDO)}</TableCell>
-                                        <TableCell onDoubleClick={() => handleCellDoubleClick(user)}>
-                                            {user.POSSUIRENDIMENTOESPECIAL ? user.VALORRENDIMENTOESPECIAL : rendimentoPadrao}%
-                                        </TableCell>
+                                        <TableCell>{user.CONTACT ? user.CONTACT : 'não informado'}</TableCell>
+                                        <TableCell>{user.TOTAL_COINS}</TableCell>
+                                        <TableCell>$ {user.TOTAL_SPENT}</TableCell>
+                                        <TableCell>$ {formatNumber(user.LUCRO_CONTRATOS)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </ClientsTable>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                />
             </Clients>
 
-            {showModal && (
-                <MudarRendimentoModal>
-                    <div className="ContainerRendimento">
-                        <p className="TituloContainerModal">ADICIONAR RENDIMENTO ESPECIAL</p>
-                        <div className="InformacoesDoCliente">
-                            <h5 className="rendimentoAtualText">O Rendimento atual do cliente <span className="rendimentoAtualTextSpan">{selectedUser.NAME}</span> é <span>{selectedUser.VALORRENDIMENTOESPECIAL || rendimentoPadrao}%</span></h5>
-                            <h4>{handleReturnTypeOfRendimento(selectedUser.POSSUIRENDIMENTOESPECIAL ? selectedUser.VALORRENDIMENTOESPECIAL : rendimentoPadrao)}</h4>
-                        </div>
-                        <div className="BoxDoNovoRendimento">
-                            <p>DIGITE O NOVO RENDIMENTO</p>
-                            <input type="number" value={newSpecialIncome} onChange={(e) => setNewSpecialIncome(e.target.value)} />
-                            <div className="areaDosBotoes">
-                                <button onClick={() => setShowModal(false)}>CANCELAR SOLICITAÇÃO</button>
-                                <button onClick={handleSaveSpecialIncome}>SALVAR UPGRADE</button>
-                            </div>
-                        </div>
-                    </div>
-                </MudarRendimentoModal>
-            )}
-
-            {message.text && (
-                <Message type={message.type}>
-                    {message.text}
-                </Message>
-            )}
         </ClientsContainer>
     );
 }
-
-const MudarRendimentoModal = styled.div`
-    width: 100%;
-    min-height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    background-color: rgba(0,0,0,0.6);
-
-    .ContainerRendimento{
-        width: max-content;
-        height: max-content;
-        padding: 40px 30px;
-        border-radius: 8px;
-        box-shadow: 3px 3px 4px rgba(0,0,0,0.6);
-        box-sizing: border-box;
-        background: linear-gradient(to right, #001D3D, #001D3D);
-    }
-
-    .TituloContainerModal{
-        margin: 0;
-        font-size: 22px;
-        text-shadow: 2px 2px 1px rgba(0,0,0,0.4);
-        text-align: center;
-    }
-
-    .InformacoesDoCliente{
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-
-        .rendimentoAtualText{
-            margin: 0;
-            font-size: 18px;
-            font-weight: 100;
-            text-align: center;
-
-            span{
-                margin: 0;
-                color: #60b6fb;
-                font-weight: 600;
-            }
-        }
-
-        h4{
-            margin: 0;
-            text-align: center;
-        }
-    }
-
-    .BoxDoNovoRendimento{
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        margin-top: 20px;
-
-        p{
-            margin: 0;
-        }
-
-        input{
-            width: 100%;
-            height: 35px;
-            text-align: center;
-            padding: 0;
-            box-sizing: border-box;
-            font-size: 22px;
-        }
-    }
-
-    .areaDosBotoes{
-        width: 100%;
-        display: flex;
-        gap: 10px;
-        box-sizing: border-box;
-
-        button{
-            width: 100%;
-            height: 35px;
-            cursor: pointer;
-        }
-    }
-`;
 
 const ClientsContainer = styled.div`
     width: 100%;
@@ -427,7 +303,7 @@ const ImgClient = styled.div`
     background-color: #f96d00;
 `;
 
-const FiltrarClienteEspecial = styled.div`
+const FiltrarClienteInvestido = styled.div`
     width: 100%;
     display: flex;
     align-items: center;

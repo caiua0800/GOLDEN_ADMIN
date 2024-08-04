@@ -2,52 +2,40 @@ import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
 import { getDepositos, setAceito } from '../redux/actions';
-import { addWeekToDateString, formatNumber, getClients } from "./ASSETS/assets";
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, updateDoc, arrayUnion, getDoc } from "@firebase/firestore";
-import { db } from "../DATABASE/firebaseConfig";
-
-const growWidth = keyframes`
-  0% {
-    height: 0%;
-  }
-  100% {
-    height: 100%;
-  }
-`;
-
-function gerarStringAleatoria() {
-    let tamanho = 4;
-    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+';
-    let resultado = '';
-    for (let i = 0; i < tamanho; i++) {
-        resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-    }
-    return resultado;
-}
+import { formatCPF, formatNumber, getClients } from "./ASSETS/assets";
 
 export default function Depositos() {
-
     const [search, setSearch] = useState('');
     const [clients, setClients] = useState([]);
-    const [clientSearch, setClientSearch] = useState(''); // State for client search in modal
-    const [selectedClient, setSelectedClient] = useState(null); // State to store selected client
+    const [clientSearch, setClientSearch] = useState('');
+    const [selectedClient, setSelectedClient] = useState(null);
     const dispatch = useDispatch();
     const depositos = useSelector((state) => state.DepositosReducer.depositos);
     const first_price_coin = 67.32;
     const [modal, setModal] = useState(false);
     const [coinsQTDE, setCoinsQTDE] = useState(1);
-    const [payMethod, setPayMethod] = useState('PIX')
+    const [payMethod, setPayMethod] = useState('PIX');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     useEffect(() => {
         dispatch(getDepositos());
         getClients(setClients);
     }, [dispatch]);
 
+    // Reset currentPage to 1 when search or any filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]); // You can add more dependencies if there are other filters
+
     const filteredDepositos = search.length > 0
-    ? depositos.filter(user => (user.NAME && user.NAME.includes(search.toUpperCase())) ||
-        (user.ID && user.ID.includes(search.toUpperCase())))
-    : depositos.filter(user => !user.VISTO); // Filter by VISTO: false
+        ? depositos.filter(user => (user.NAME && user.NAME.includes(search.toUpperCase())) ||
+            (user.ID && user.ID.includes(search.toUpperCase())))
+        : depositos.filter(user => !user.VISTO);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredDepositos.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleSetAceito = (userId, contratoId) => {
         dispatch(setAceito(userId, contratoId, true));
@@ -59,18 +47,14 @@ export default function Depositos() {
         dispatch(getDepositos());
     };
 
-    const reload_ico = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com.png?alt=media&token=239c954a-c1fc-4829-839e-694b067a90f5';
-
     const handleReload = () => {
         dispatch(getDepositos());
     };
 
-    // Filter clients based on clientSearch state
     const filteredClients = clients.filter(client =>
         (client.NAME && client.NAME.toUpperCase().includes(clientSearch.toUpperCase())) ||
         (client.CPF && client.CPF.includes(clientSearch))
     );
-
 
     const handleHideModal = () => {
         setModal(false);
@@ -80,70 +64,28 @@ export default function Depositos() {
         setModal(true);
     }
 
-    const handleClientSelect = (client) => {
-        setSelectedClient(client);
-        setClientSearch(''); // Limpar a pesquisa ao selecionar um cliente
-    }
-
-    const formatDate = (date) => {
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+    const handlePreviousPage = () => {
+        setCurrentPage(prev => Math.max(prev - 1, 1));
     };
 
-    function formatarCPFLimpo(cpf) {
-        // Remove todos os caracteres que não são dígitos (números)
-        const cpfLimpo = cpf.replace(/\D/g, '');
-        return cpfLimpo;
-    }
-
-    const handlePostTokenPurchase = async () => {
-
-        const today = new Date();
-        const nextYear = new Date();
-        nextYear.setFullYear(today.getFullYear() + 1);
-        let compraInfo = [];
-
-
-        compraInfo = {
-            ALLOWSELL: formatDate(nextYear),
-            COINS: parseInt(coinsQTDE),
-            COINVALUE: first_price_coin,
-            PURCHASEDATE: formatDate(today),
-            IDCOMPRA: gerarStringAleatoria(),
-            STATUS: false,
-            TOTALSPENT: parseFloat(coinsQTDE) * first_price_coin,
-            PAYMENTMETHOD: payMethod,
-            VISTO: false,
-        };
-
-        try {
-            console.log("Trying to get document with CPF:", selectedClient.CPF);
-            const userDoc = await getDoc(doc(db, "USERS", formatarCPFLimpo(selectedClient.CPF)));
-
-            if (!userDoc.exists()) {
-                console.error("User data not found for CPF:", selectedClient.CPF);
-                alert("Confirmação inválida");
-
-                return;
-            }
-
-
-            const userDocRef = doc(db, "USERS", formatarCPFLimpo(selectedClient.CPF));
-
-            await updateDoc(userDocRef, {
-                CONTRATOS: arrayUnion(compraInfo),
-            });
-
-            alert("Sua compra foi solicitada com sucesso, aguarde a confirmação");
-            setModal(false);
-        } catch (error) {
-            console.error("erro", error);
-            alert("Ouve Algum erro, tente novamente mais tarde");
-        } 
+    const handleNextPage = () => {
+        setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredDepositos.length / itemsPerPage)));
     };
 
+    const handleStatus = (status) => {
+        switch (status) {
+            case 1:
+                return 'VALORIZANDO'
+            case 2:
+                return 'Finalizado'
+            case 3:
+                return 'Cancelado'
+            case 4:
+                return 'Pendente'
+            default:
+                return 'Indefinido';
+        }
+    }
 
     return (
         <DepositosContainer>
@@ -173,9 +115,8 @@ export default function Depositos() {
                                 <TableRow>
                                     <TableHeaderCell>ID</TableHeaderCell>
                                     <TableHeaderCell>CLIENTE</TableHeaderCell>
-                                    <TableHeaderCell>CELULAR</TableHeaderCell>
+                                    <TableHeaderCell>CPF</TableHeaderCell>
                                     <TableHeaderCell>DATA SOLICITAÇÃO</TableHeaderCell>
-                                    <TableHeaderCell>PRAZO DE VALIDAÇÃO</TableHeaderCell>
                                     <TableHeaderCell>TOKENS</TableHeaderCell>
                                     <TableHeaderCell>VALOR</TableHeaderCell>
                                     <TableHeaderCell>STATUS</TableHeaderCell>
@@ -183,16 +124,15 @@ export default function Depositos() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredDepositos.map((user, index) => (
+                                {currentItems.map((user, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{user.IDCOMPRA}</TableCell>
-                                        <TableCell>{user.NAME}</TableCell>
-                                        <TableCell>{user.CONTACT}</TableCell>
+                                        <TableCell>{user.NAME !== 'xxx xxxx' ? user.NAME : 'Indefinido'}</TableCell>
+                                        <TableCell>{user.CPF ? formatCPF(user.CPF) : 'Não Informado'}</TableCell>
                                         <TableCell>{user.PURCHASEDATE}</TableCell>
-                                        <TableCell>{addWeekToDateString(user.PURCHASEDATE)}</TableCell>
-                                        <TableCell>{formatNumber(user.COINS)}</TableCell>
+                                        <TableCell>{user.COINS}</TableCell>
                                         <TableCell>$ {formatNumber(user.TOTALSPENT)}</TableCell>
-                                        <TableCell>{user.VISTO ? (user.STATUS ? 'ACEITO' : 'NEGADO') : 'PENDENTE'}</TableCell>
+                                        <TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</TableCell>
                                         <TableCell>
                                             <OptionsButtons>
                                                 <button className="negar" onClick={() => handleSetNegado(user.ID, user.IDCOMPRA)}>Negar</button>
@@ -200,11 +140,20 @@ export default function Depositos() {
                                             </OptionsButtons>
                                         </TableCell>
                                     </TableRow>
-
                                 ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
+                    <Pagination>
+                        <PaginationButton onClick={handlePreviousPage} disabled={currentPage === 1}>
+                            Anterior
+                        </PaginationButton>
+                        <PaginationInfo>{`Página ${currentPage} de ${Math.ceil(filteredDepositos.length / itemsPerPage)}`}</PaginationInfo>
+                        <PaginationButton onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredDepositos.length / itemsPerPage)}>
+                            Próxima
+                        </PaginationButton>
+                    </Pagination>
                 </DepositosTable>
             </DepositosContent>
 
@@ -221,19 +170,17 @@ export default function Depositos() {
                                 <input
                                     placeholder="NOME OU CPF"
                                     value={clientSearch}
-                                    onChange={e => setClientSearch(e.target.value)} // Update client search state
+                                    onChange={e => setClientSearch(e.target.value)}
                                 />
-
                                 {clientSearch && (
                                     <SearchedClients>
                                         {filteredClients.map((client, index) => (
-                                            <ClientBoxSearched key={index} onClick={() => handleClientSelect(client)}>
+                                            <ClientBoxSearched key={index}>
                                                 <span>{client.NAME}</span>
                                             </ClientBoxSearched>
                                         ))}
                                     </SearchedClients>
                                 )}
-
                                 <RestContentBox>
                                     <div>
                                         <span>CLIENTE</span>
@@ -242,15 +189,12 @@ export default function Depositos() {
                                     <div>
                                         <span>QUANTIDADE DE TOKENS</span>
                                         <input value={coinsQTDE} onChange={e => {
-
                                             if (e.target.value < 1) {
                                                 setCoinsQTDE(1)
                                             } else {
                                                 setCoinsQTDE(e.target.value)
                                             }
-                                        }
-
-                                        } type="number" />
+                                        }} type="number" />
                                         <p>VALOR DO TOKEN: $ {first_price_coin}</p>
                                     </div>
                                     <div>
@@ -270,16 +214,48 @@ export default function Depositos() {
 
                         <ModalButtons>
                             <button onClick={handleHideModal} className="cancelBtn">CANCELAR</button>
-                            <button onClick={() => {handlePostTokenPurchase()}} className="confirmBtn">CONFIRMAR</button>
+                            <button className="confirmBtn">CONFIRMAR</button>
                         </ModalButtons>
                     </BoxModal>
-
                 </ModalNovoDeposito>
             )}
-
         </DepositosContainer>
     );
 }
+
+const growWidth = keyframes`
+  0% {
+    height: 0%;
+  }
+  100% {
+    height: 100%;
+  }
+`;
+
+// Add styled-components for pagination
+const Pagination = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+`;
+
+const PaginationButton = styled.button`
+  background-color: #FFC300;
+  color: #000814;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`;
+
+const PaginationInfo = styled.span`
+  color: #f2f2f2;
+`;
+
 
 const ModalNovoDeposito = styled.div`
   width: 100%;
@@ -557,7 +533,7 @@ const DepositosTable = styled.div`
     max-height: 500px;
     overflow-y: hidden;
     overflow-x: hidden;
-
+    flex-direction: column;
     display: flex;
     justify-content: center;
     @media (max-width: 915px){

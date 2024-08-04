@@ -1,7 +1,7 @@
 // assets.js
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../DATABASE/firebaseConfig';
-
+import axios from 'axios';
 // Função para adicionar uma semana a uma data
 export function addWeekToDateString(dateString) {
     const [day, month, year] = dateString.split('/').map(Number);
@@ -24,58 +24,23 @@ export const formatNumber = (value) => {
 
 
 export const formatCPF = (cpf) => {
-    cpf = cpf.replace(/\D/g, '');
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    if (cpf != 'NULL') {
+        cpf = cpf.replace(/\D/g, '');
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    return '';
 };
 
 export const getClients = async (setUsers) => {
     try {
-        const querySnapshot = await getDocs(collection(db, 'USERS'));
-        let userList = [];
+        // Fazer a requisição GET para a API
+        const response = await axios.get('http://localhost:4000/clientes/getAllClientesWithPlusInfo');
+        const userList = response.data;
 
-        querySnapshot.forEach((doc) => {
-            const userData = doc.data();
-            let totalPago = 0;
-            let totalCoins = 0;
-            let totalLucro = 0;
-
-            // Verifica se existe o campo CONTRATOS e se é um array
-            if (userData.CONTRATOS && Array.isArray(userData.CONTRATOS)) {
-                userData.CONTRATOS.forEach((contrato) => {
-                    // Verifica se STATUS é true antes de adicionar ao totalPago
-                    if (contrato.STATUS) {
-                        totalPago += contrato.TOTALSPENT || 0;
-                        totalCoins += contrato.COINS || 0;
-                        totalLucro += ((contrato.LUCRO_OBTIDO / 100) * contrato.TOTALSPENT);
-                    }
-                });
-            }
-
-            const user = {
-                ID: doc.id,
-                NAME: userData.NAME,
-                CPF: formatCPF(userData.CPF),
-                CONTACT: userData.CONTACT,
-                EMAIL: userData.EMAIL,
-                TOTALPAGO: totalPago,
-                TOTALCOINS: totalCoins,
-                DOCSENVIADOS: userData.DOCSENVIADOS,
-                VERIFICADO: userData.VERIFICADO,
-                DOCURL: userData.DOCCLIENT,
-                FACEURL: userData.FACECLIENT,
-                COIN_VALUE_ATUAL: userData.COIN_VALUE_ATUAL,
-                LUCRO_OBTIDO: totalLucro,
-                DATACRIACAO: userData.DATACRIACAO,
-                POSSUIRENDIMENTOESPECIAL: userData.POSSUIRENDIMENTOESPECIAL,
-                VALORRENDIMENTOESPECIAL: userData.VALORRENDIMENTOESPECIAL,
-            };
-
-            userList.push(user);
-        });
-
+        // Atualizar o estado com os dados recebidos
         setUsers(userList);
     } catch (error) {
-        console.error("Error getting users:", error);
+        console.error("Error getting clients: ", error);
     }
 };
 
@@ -95,4 +60,47 @@ export async function getMonthlyYield() {
         console.error("Erro ao obter rendimento mensal: ", error);
         return null;
     }
+}
+
+export function formatDate(dateString) {
+
+    if (dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }else return null;
+
+}
+
+
+export function adicionarAno(data) {
+
+    if(!data)
+        return null;
+
+    const [dia, mes, ano] = data.split('/').map(Number);
+    const dataOriginal = new Date(ano, mes - 1, dia);
+    dataOriginal.setFullYear(dataOriginal.getFullYear() + 1);
+    const diaNovo = dataOriginal.getDate().toString().padStart(2, '0');
+    const mesNovo = (dataOriginal.getMonth() + 1).toString().padStart(2, '0');
+    const anoNovo = dataOriginal.getFullYear();
+    return `${diaNovo}/${mesNovo}/${anoNovo}`;
+}
+
+export function formatCurrencyBRL(value) {
+    // Converte o valor para string
+    const valueStr = String(value).replace(',', '.');
+
+    // Converte a string para número
+    const number = parseFloat(valueStr);
+
+    // Verifica se a conversão foi bem-sucedida
+    if (isNaN(number)) {
+        throw new Error("Invalid input. Please provide a valid number string.");
+    }
+
+    // Formata o número no padrão brasileiro
+    return number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

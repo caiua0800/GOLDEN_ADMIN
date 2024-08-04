@@ -7,14 +7,12 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const closeIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/cancel-close-delete-svgrepo-com.png?alt=media&token=b0d9ff03-fef7-4eb4-8bae-f6624f1483f2';
 const payIco = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/payment-pay-later-svgrepo-com.png?alt=media&token=13b149d1-cdad-49e3-9e78-e85ca4940274';
-const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e'; 
-
-
+const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e';
 
 export default function Saques() {
     const [search, setSearch] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
-    const [userINFOMODAL, setUserINFOMODAL] = useState({})
+    const [userINFOMODAL, setUserINFOMODAL] = useState({});
     const [modalData, setModalData] = useState({
         metodoPagamento: 'TED',
         aprovarTransacao: 'APROVAR SAQUE',
@@ -22,8 +20,8 @@ export default function Saques() {
         responsavelSenha: '',
         observacoes: ''
     });
-
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const dispatch = useDispatch();
     const saques = useSelector(state => state.SaquesReducer.saques);
@@ -32,84 +30,57 @@ export default function Saques() {
         dispatch(getSaques());
     }, [dispatch]);
 
+    // Reset currentPage to 1 when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
     const filteredClients = search.length > 0
     ? saques.filter(user => {
         return (
-            (user.NAME && user.NAME.includes(search.toUpperCase())) ||
-            (user.ID && user.ID.includes(search.toUpperCase()))
+            (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
+            (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))
         );
-    }).filter(user => !user.PENDENTE) // Filtra se PENDENTE for false
-    : saques.filter(user => !user.PENDENTE); // Filtra se PENDENTE for false quando não há pesquisa
+    }) : saques;
 
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredClients.slice(indexOfFirstItem, indexOfLastItem);
 
-
-    const handleOpenModal = (userId, saqueId, valor, fundo_escolhido) => {
-        setModalOpen(true);
-        setUserINFOMODAL({userId, saqueId, valor, fundo_escolhido})
-    };
-
-    const handleAproveChange = async () => {
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, modalData.responsavelEmail, modalData.responsavelSenha);
-            // Login successful
-            console.log("User logged in:", userCredential.user);
-    
-            // Dispatch actions based on approval decision
-            dispatch(setAceitoSaques(userINFOMODAL.userId, userINFOMODAL.saqueId, modalData.aprovarTransacao === 'APROVAR SAQUE', modalData.metodoPagamento, modalData.observacoes, userINFOMODAL.valor, userINFOMODAL.fundo_escolhido));
-            closeModal();
-            alert("TRANSAÇÃO AUTORIZADA");
-            dispatch(getSaques());
-        } catch (error) {
-            alert("ACESSO NEGADO OU INEXISTENTE");
-            dispatch(getSaques());
-        }
-    };
-
-    const handleSaveAceitoModal = () => {
-
-        if(modalData.responsavelEmail && modalData.responsavelSenha){
-            handleAproveChange()
-        }else{
-            alert("INSIRA O EMAIL E A SENHA");
-        }
-
-        // dispatch(setAceitoSaques(userINFOMODAL.userId, userINFOMODAL.saqueId, modalData.aprovarTransacao === 'APROVAR SAQUE' ? true : false));
-        // dispatch(getSaques());
-        // closeModal();
-    }
 
     const handleReload = () => {
         dispatch(getSaques());
     };
 
 
-    const closeModal = () => {
-        setModalOpen(false);
-        setModalData({
-            metodoPagamento: 'TED',
-            aprovarTransacao: 'APROVAR SAQUE',
-            responsavelEmail: '',
-            responsavelSenha: '',
-            observacoes: ''
-        });
+    const handlePreviousPage = () => {
+        setCurrentPage(prev => Math.max(prev - 1, 1));
     };
 
-    const handleChangeModalData = (e) => {
-        const { name, value } = e.target;
-        setModalData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
+    const handleNextPage = () => {
+        setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredClients.length / itemsPerPage)));
     };
 
-
-
+    const handleStatus = (status) => {
+        switch (status) {
+            case 1:
+                return 'Pendente'
+            case 2:
+                return 'Pago'
+            case 3:
+                return 'Expirado'
+            case 4:
+                return 'Cancelado'
+            default:
+                return 'Indefinido';
+        }
+    }
 
     return (
         <SaquesContainer>
             <SaquesFirstContent>
                 <AreaTitle>VALIDAR SAQUES</AreaTitle>
-                {/* <AddSaques onClick={openModal}>+ REALIZAR NOVO SAQUE</AddSaques> */}
+                <AddSaques>+ REALIZAR NOVO SAQUE</AddSaques>
             </SaquesFirstContent>
 
             <SaquesContent>
@@ -131,31 +102,26 @@ export default function Saques() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHeaderCell>ID</TableHeaderCell>
                                     <TableHeaderCell>CLIENTE</TableHeaderCell>
+                                    <TableHeaderCell>CPF</TableHeaderCell>
                                     <TableHeaderCell>DATA SOLICITAÇÃO</TableHeaderCell>
-                                    <TableHeaderCell>PRAZO DE VALIDAÇÃO</TableHeaderCell>
                                     <TableHeaderCell>VALOR</TableHeaderCell>
-                                    <TableHeaderCell>FUNDO</TableHeaderCell>
                                     <TableHeaderCell>APROVADO</TableHeaderCell>
                                     <TableHeaderCell>OPÇÕES</TableHeaderCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredClients.map((user, index) => (
+                                {currentItems.map((user, index) => (
                                     <TableRow key={index}>
-                                        <TableCell>{user.IDSAQUE}</TableCell>
-                                        <TableCell>{user.NAME}</TableCell>
-                                        <TableCell>{user.DATA}</TableCell>
-                                        <TableCell>{user.DATA}</TableCell>
-                                        <TableCell>$ {user.VALOR}</TableCell>
-                                        <TableCell>{(user.FUNDO_ESCOLHIDO === 'SALDORECOMPRA' ? 'RECOMPRA' : 'INDICAÇÃO')}</TableCell>
-                                        <TableCell>{user.PENDENTE ? (user.APROVADO ? 'APROVADA' : 'NEGADO') : 'PENDENTE'}</TableCell>
+                                        <TableCell>{user.CLIENT_NAME}</TableCell>
+                                        <TableCell>{user.CLIENT_CPF}</TableCell>
+                                        <TableCell>{user.DATASOLICITACAO}</TableCell>
+                                        <TableCell>$ {user.VALORSOLICITADO}</TableCell>
+                                        
+                                        <TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</TableCell>
                                         <TableCell>
                                             <OptionsButtons>
-                                                {/* <button onClick={() => handleSetNegado(user.ID, user.IDSAQUE)}>Negar</button>
-                                                <button onClick={() => handleSetAceito(user.ID, user.IDSAQUE)}>Aceitar</button> */}
-                                                <img onClick={() => {handleOpenModal(user.ID, user.IDSAQUE, user.VALOR, user.FUNDO_ESCOLHIDO)}} src={payIco} alt="payIco"/>
+                                                <img src={payIco} alt="payIco" />
                                             </OptionsButtons>
                                         </TableCell>
                                     </TableRow>
@@ -163,246 +129,49 @@ export default function Saques() {
                             </TableBody>
                         </Table>
                     </TableContainer>
+
+                    <Pagination>
+                        <PaginationButton onClick={handlePreviousPage} disabled={currentPage === 1}>
+                            Anterior
+                        </PaginationButton>
+                        <PaginationInfo>{`Página ${currentPage} de ${Math.ceil(filteredClients.length / itemsPerPage)}`}</PaginationInfo>
+                        <PaginationButton onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredClients.length / itemsPerPage)}>
+                            Próxima
+                        </PaginationButton>
+                    </Pagination>
                 </SaquesTable>
             </SaquesContent>
 
-            {modalOpen && (
-                <ModalAceitar>
-                    <ModalAceitarContent>
-                        <UserINFO></UserINFO>
-                        <CancelIcon onClick={closeModal}>
-                            <img src={closeIcon} alt="icon" />
-                        </CancelIcon>
-                        <ModalAceitarTitle>
-                            INFORMAÇÕES DE SAÍDA
-                        </ModalAceitarTitle>
 
-                        <ModalAceitarInfo>
-                            <div>
-                                <span>MÉTODO DE PAGAMENTO:</span>
-                                <select
-                                    name="metodoPagamento"
-                                    value={modalData.metodoPagamento}
-                                    onChange={handleChangeModalData}
-                                >
-                                    <option value="TED">TED</option>
-                                    <option value="PIX">PIX</option>
-                                    <option value="EM ESPÉCIE">EM ESPÉCIE</option>
-                                    <option value="DEPÓSITO BANCÁRIO">DEPÓSITO BANCÁRIO</option>
-                                    <option value="NEGADO">NEGADO</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <span>APROVAR TRANSAÇÃO:</span>
-                                <select
-                                    name="aprovarTransacao"
-                                    value={modalData.aprovarTransacao}
-                                    onChange={handleChangeModalData}
-                                >
-                                    <option value="APROVAR SAQUE">APROVAR SAQUE</option>
-                                    <option value="NEGAR SAQUE">NEGAR SAQUE</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <span>RESPONSÁVEL EMAIL:</span>
-                                <input
-                                    type="email"
-                                    name="responsavelEmail"
-                                    value={modalData.responsavelEmail}
-                                    onChange={handleChangeModalData}
-                                />
-                            </div>
-
-                            <div>
-                                <span>RESPONSÁVEL SENHA:</span>
-                                <input
-                                    type="password"
-                                    name="responsavelSenha"
-                                    value={modalData.responsavelSenha}
-                                    onChange={handleChangeModalData}
-                                />
-                            </div>
-
-                            <Obs>
-                                <span>OBSERVAÇÕES:</span>
-                                <textarea
-                                    name="observacoes"
-                                    value={modalData.observacoes}
-                                    onChange={handleChangeModalData}
-                                ></textarea>
-                            </Obs>
-
-                        </ModalAceitarInfo>
-
-
-                        <ModalAceitarButtons>
-                            <button className="cancelarModal" onClick={closeModal}>CANCELAR</button>
-                            <button className="aceitarModal" onClick={handleSaveAceitoModal}>ENVIAR</button>
-                        </ModalAceitarButtons>
-
-                    </ModalAceitarContent>
-                </ModalAceitar>
-            )}
         </SaquesContainer>
     );
 }
 
-const UserINFO = styled.div`
-    display: none;
+
+
+
+// Add styled-components for pagination
+const Pagination = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
 `;
 
-const ModalAceitar = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.6);
-
-    display: flex;
-    justify-content: center;
-    z-index: 1000;
-    align-items: center;
+const PaginationButton = styled.button`
+  background-color: #FFC300;
+  color: #000814;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `;
 
-const ModalAceitarContent = styled.div`
-    width: 1250px;
-    background-color: white;
-    border-radius: 3px;
-    padding: 30px;
-    box-sizing: border-box;
-    position: relative;
-`;
-
-const CancelIcon = styled.div`
-    width: 20px;
-    overflow: hidden;
-    display: flex;
-    position: absolute;
-    top: 15px;
-    right: 15px;
-
-    img{
-        width: 100%;
-        cursor: pointer;
-        transition: .3s;
-
-        &:hover{
-            transform: scale(1.5);
-        }
-    }
-`;
-
-const ModalAceitarTitle = styled.h2`
-    margin: 0;
-    color: rgba(218, 143, 8, 0.8);
-    transition: .6s;
-    wisth: 100%;
-    display: flex;
-    justify-content: start;
-    cursor:pointer;
-    &:hover{
-        margin-left: 40px;
-    }
-`;
-
-const ModalAceitarInfo = styled.div`
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    margin-top: 30px;
-    height: max-content;
-    gap: 10px;
-    align-items: flex-start; /* Alinha os itens à esquerda */
-    justify-content: center;
-    box-sizing: border-box;
-
-    div {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        box-sizing: border-box;
-        width: 100%;
-        span {
-            min-width: 200px; /* Define uma largura mínima para os spans */
-            font-size: 16px;
-            color: rgba(0, 0, 0, 0.6);
-            font-weight: 600;
-            text-align: left; /* Alinha o texto à esquerda */
-        }
-
-        select,
-        input {
-            flex: 1; 
-            height: 35px;
-            color: rgba(0, 0, 0, 0.6);
-            box-sizing: border-box;
-            padding: 5px;
-        }
-
-
-    }
-`;
-
-const Obs = styled.div`
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    box-sizing: border-box;
-    flex-direction: column;
-    margin-top: 10px;
-    width: 100%;
-
-    span {
-        min-width: 200px; 
-        font-size: 16px;
-        color: rgba(0, 0, 0, 0.6);
-        font-weight: 600;
-        text-align: left; /* Alinha o texto à esquerda */
-    }
-
-    textarea{
-        width: 100%;
-        height: 100px;
-        color: rgba(0,0,0,0.7);
-        font-size: 16px;
-        box-sizing: border-box;
-        padding: 5px 30px;
-    }
-`;
-
-const ModalAceitarButtons = styled.div`
-    margin-top: 20px;
-    width: 100%;
-    justify-content: space-between;
-    gap: 20px;
-    display: flex;
-
-    button{
-        height: 40px;
-        color: white;
-        width: 120px;
-        transition: .3s;
-        border: 0;
-        border-radius: 3px;
-        cursor: pointer;
-    }
-
-    .cancelarModal{
-        background-color: rgba(199, 6, 6, 0.8);
-        &:hover{
-            background-color: rgba(199, 6, 6, 1);
-        }
-    }
-
-    .aceitarModal{
-        background-color: rgba(26, 199, 6, 0.8);
-        &:hover{
-            background-color: rgba(26, 199, 6, 1);
-        }
-    }
+const PaginationInfo = styled.span`
+  color: #f2f2f2;
 `;
 
 
@@ -509,7 +278,7 @@ const SaquesTable = styled.div`
     max-height: 500px;
     overflow-y: hidden;
     overflow-x: hidden;
-
+    flex-direction: column;
     display: flex;
     justify-content: center;
     @media (max-width: 915px){

@@ -18,6 +18,8 @@ import Validacao from './Components/Validacao';
 import CreateNews from './Components/CreateNews';
 import Rendimentos from './Components/Rendimentos';
 import SaquesFeitos from './Components/SaquesFeitos';
+import HomeFuncoes from './Components/Funcoes/Home/Home'
+import DynamicChart from './Components/Funcoes/GraficoFisica/DynamicChart';
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -29,7 +31,8 @@ const NAV_LINKS = [
   { name: "Saques Feitos", path: "/saquesFeitos" },
   { name: "Validação Doc.", path: "/validacao" },
   { name: "Notícias", path: "/noticias" },
-  { name: "Rendimentos", path: "/rendimentos" }
+  { name: "Rendimentos", path: "/rendimentos" },
+  { name: "Funções", path: "/funcoes" }
 ];
 
 function App() {
@@ -63,6 +66,8 @@ function App() {
               <Route path="/validacao" element={<Validacao />} />
               <Route path="/rendimentos" element={<Rendimentos />} />
               <Route path="/saquesFeitos" element={<SaquesFeitos />} />
+              <Route path="/funcoes" element={<HomeFuncoes />} />
+              <Route path="/fisica" element={<DynamicChart />} />
             </Routes>
           </>
         ) : (

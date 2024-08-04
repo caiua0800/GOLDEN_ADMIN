@@ -41,6 +41,9 @@ export default function Home() {
                     <StyledLink to="/rendimentos">
                         <Option color="#219ebc">RODAR RENDIMENTO DIÁRIO</Option>
                     </StyledLink>
+                    <StyledLink to="/funcoes">
+                        <Option color="#219ebc">FUNÇÕES PLATAFORMA</Option>
+                    </StyledLink>
                 </HomeOptions>
 
                 <GrapthContainer>
