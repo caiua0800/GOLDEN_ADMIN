@@ -2,27 +2,19 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
 import { getSaques, setAceitoSaques } from '../redux/actions';
-import { auth } from '../DATABASE/firebaseConfig'; 
-import { signInWithEmailAndPassword } from 'firebase/auth';
 
+import ValidarCredenciais from "./ValidarCredenciais/ValidarCredenciais";
 const closeIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/cancel-close-delete-svgrepo-com.png?alt=media&token=b0d9ff03-fef7-4eb4-8bae-f6624f1483f2';
 const payIco = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/payment-pay-later-svgrepo-com.png?alt=media&token=13b149d1-cdad-49e3-9e78-e85ca4940274';
 const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e';
 
 export default function Saques() {
     const [search, setSearch] = useState('');
-    const [modalOpen, setModalOpen] = useState(false);
-    const [userINFOMODAL, setUserINFOMODAL] = useState({});
-    const [modalData, setModalData] = useState({
-        metodoPagamento: 'TED',
-        aprovarTransacao: 'APROVAR SAQUE',
-        responsavelEmail: '',
-        responsavelSenha: '',
-        observacoes: ''
-    });
+
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-
+    const [modalAberto, setModalAberto] = useState(false);
+    const [modalData, setModalData] = useState({})
     const dispatch = useDispatch();
     const saques = useSelector(state => state.SaquesReducer.saques);
 
@@ -30,18 +22,18 @@ export default function Saques() {
         dispatch(getSaques());
     }, [dispatch]);
 
-    // Reset currentPage to 1 when search changes
+
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
 
     const filteredClients = search.length > 0
-    ? saques.filter(user => {
-        return (
-            (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
-            (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))
-        );
-    }) : saques;
+        ? saques.filter(user => {
+            return (
+                (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
+                (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))
+            );
+        }) : saques;
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -76,8 +68,23 @@ export default function Saques() {
         }
     }
 
+    const handleOpenValidarModal = (data) => {
+        setModalData(data);
+        setModalAberto(true);
+        console.log(data);
+    }
+
+
+
     return (
         <SaquesContainer>
+            {modalAberto && (
+                <ValidarCredenciais
+                    modalData={modalData}
+                    setModalAberto={setModalAberto}
+                    type="SAQUE"
+                />
+            )}
             <SaquesFirstContent>
                 <AreaTitle>VALIDAR SAQUES</AreaTitle>
                 <AddSaques>+ REALIZAR NOVO SAQUE</AddSaques>
@@ -117,11 +124,14 @@ export default function Saques() {
                                         <TableCell>{user.CLIENT_CPF}</TableCell>
                                         <TableCell>{user.DATASOLICITACAO}</TableCell>
                                         <TableCell>$ {user.VALORSOLICITADO}</TableCell>
-                                        
+
                                         <TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</TableCell>
                                         <TableCell>
                                             <OptionsButtons>
-                                                <img src={payIco} alt="payIco" />
+                                                <img
+                                                    onClick={() => { handleOpenValidarModal(user) }}
+                                                    src={payIco} alt="payIco"
+                                                />
                                             </OptionsButtons>
                                         </TableCell>
                                     </TableRow>

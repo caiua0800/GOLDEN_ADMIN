@@ -5,7 +5,7 @@ import Home from './Components/Home';
 import Clients from './Components/Clients';
 import Users from './Components/Users';
 import Contratos from './Components/Contratos';
-import Depositos from './Components/Depositos';
+import Depositos from './Components/Depositos/Depositos';
 import Login from './Components/Login';
 import { useDispatch, useSelector } from 'react-redux';
 import { Provider } from 'react-redux';

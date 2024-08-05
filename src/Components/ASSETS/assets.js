@@ -2,7 +2,7 @@
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../DATABASE/firebaseConfig';
 import axios from 'axios';
-// Função para adicionar uma semana a uma data
+
 export function addWeekToDateString(dateString) {
     const [day, month, year] = dateString.split('/').map(Number);
     const date = new Date(year, month - 1, day);
@@ -13,7 +13,7 @@ export function addWeekToDateString(dateString) {
     return `${newDay}/${newMonth}/${newYear}`;
 }
 
-// Função para formatar um número no formato brasileiro
+
 export const formatNumber = (value) => {
     if (typeof value !== 'number' || isNaN(value)) {
         return '0.00'; // Valor padrão caso o valor seja indefinido ou não seja um número
@@ -104,3 +104,13 @@ export function formatCurrencyBRL(value) {
     // Formata o número no padrão brasileiro
     return number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
+export const generateRandomString = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 10; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+};

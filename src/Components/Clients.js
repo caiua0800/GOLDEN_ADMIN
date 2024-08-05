@@ -58,7 +58,7 @@ export default function Clientes() {
         <ClientsContainer>
 
 
-            <PaginaCliente handleClose={handleUnselectClient} clienteData={selectedClient} />
+            <PaginaCliente setUsers={setUsers} handleClose={handleUnselectClient} clienteData={selectedClient} />
             <ClientFirstContent>
                 <AreaTitle>CLIENTES</AreaTitle>
                 <AddClient onClick={handlereateClient}>+ ADICIONAR CLIENTE</AddClient>

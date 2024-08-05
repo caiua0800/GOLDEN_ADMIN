@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
-import { getSaques, setAceitoSaques } from '../redux/actions';
+import { getSaques } from '../redux/actions';
 import { formatCPF } from "./ASSETS/assets";
 
 const closeIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/cancel-close-delete-svgrepo-com.png?alt=media&token=b0d9ff03-fef7-4eb4-8bae-f6624f1483f2';
 const payIco = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/payment-pay-later-svgrepo-com.png?alt=media&token=13b149d1-cdad-49e3-9e78-e85ca4940274';
-const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e'; 
+const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e';
 
 export default function SaquesFeitos() {
     const [search, setSearch] = useState('');
     const [filterOption, setFilterOption] = useState('pendentes');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const dispatch = useDispatch();
     const saques = useSelector(state => state.SaquesReducer.saques);
@@ -19,22 +21,45 @@ export default function SaquesFeitos() {
         dispatch(getSaques());
     }, [dispatch]);
 
+    // Reset currentPage to 1 when search or filterOption changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filterOption]);
+
     const filteredClients = saques.filter(user => {
         const matchesSearch = search.length > 0
-            ? (user.NAME && user.NAME.includes(search.toUpperCase())) ||
-              (user.ID && user.ID.includes(search.toUpperCase()))
+            ? (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
+              (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))
             : true;
 
         const matchesFilter = 
-
             filterOption === 'aceitos'
-            ? user.PENDENTE && user.APROVADO
+            ? user.STATUS === 2
             : filterOption === 'negados'
-            ? user.PENDENTE && !user.APROVADO
+            ? user.STATUS === 3
             : true;
 
         return matchesSearch && matchesFilter;
     });
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredClients.slice(indexOfFirstItem, indexOfLastItem);
+
+    const handleStatus = (Status) => {
+        if(Status === 1)
+            return 'PENDENTE'
+        else if(Status === 2)
+            return 'PAGO'
+        else if(Status === 3)
+            return 'CANCELADO'
+        else
+            return 'INDEFINIDO'
+    }
+
+    const handlePreviousPage = () => { setCurrentPage(prev => Math.max(prev - 1, 1)); };
+
+    const handleNextPage = () => { setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredClients.length / itemsPerPage))); };
 
     return (
         <SaquesContainer>
@@ -82,7 +107,6 @@ export default function SaquesFeitos() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHeaderCell>ID</TableHeaderCell>
                                     <TableHeaderCell>CLIENTE</TableHeaderCell>
                                     <TableHeaderCell>CPF</TableHeaderCell>
                                     <TableHeaderCell>DATA SOLICITAÇÃO</TableHeaderCell>
@@ -93,21 +117,31 @@ export default function SaquesFeitos() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredClients.map((user, index) => (
+                                {currentItems.map((user, index) => (
                                     <TableRow key={index}>
-                                        <TableCell>{user.IDSAQUE}</TableCell>
-                                        <TableCell>{user.NAME}</TableCell>
-                                        <TableCell>{formatCPF(user.ID)}</TableCell>
-                                        <TableCell>{user.DATA}</TableCell>
-                                        <TableCell>{user.APROVADO ? user.DADOSRECEBIMENTO :user.OBS}</TableCell>
-                                        <TableCell>$ {user.VALOR}</TableCell>
-                                        <TableCell>{user.FUNDO_ESCOLHIDO === 'SALDORECOMPRA' ? 'RECOMPRA' : 'INDICAÇÃO'}</TableCell>
-                                        <TableCell>{(user.APROVADO ? 'APROVADO' : 'NEGADO')}</TableCell>
+                                        <TableCell>{user.CLIENT_NAME}</TableCell>
+                                        <TableCell>{formatCPF(user.CLIENT_CPF)}</TableCell>
+                                        <TableCell>{user.DATASOLICITACAO}</TableCell>
+                                        <TableCell>{user.OBS ? user.OBS : 'Não'}</TableCell>
+                                        <TableCell>$ {user.VALORSOLICITADO}</TableCell>
+                                        <TableCell>{user.FUNDO_ESCOLHIDO ? 'Sim' : 'Não Informado'}</TableCell>
+                                        <TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
+                    {/* Pagination */}
+                    <Pagination>
+                        <PaginationButton onClick={handlePreviousPage} disabled={currentPage === 1}>
+                            Anterior
+                        </PaginationButton>
+                        <PaginationInfo>{`Página ${currentPage} de ${Math.ceil(filteredClients.length / itemsPerPage)}`}</PaginationInfo>
+                        <PaginationButton onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredClients.length / itemsPerPage)}>
+                            Próxima
+                        </PaginationButton>
+                    </Pagination>
                 </SaquesTable>
             </SaquesContent>
         </SaquesContainer>
@@ -142,10 +176,11 @@ const SearchCheck = styled.div`
         margin-top: 20px;
     }
 `;
+
 const SaquesContainer = styled.div`
     width: 100%;
     height: 100vh;
-    overflow:hidden;
+    overflow: hidden;
     box-sizing: border-box;
     padding: 40px 40px;
     background: linear-gradient(to right, #001D3D, #003566, #001D3D);
@@ -175,182 +210,89 @@ const AreaTitle = styled.h1`
     cursor: pointer;
     margin: 0;
     transition: .3s;
-
-    &:hover{
-        text-shadow: 1px 1px 2px rgba(255,255,255,0);
-        color: #FFC300;
-        padding-left: 20px;
-    }
-`;
-
-const AddSaques = styled.button`
-    padding: 10px 20px;
-    box-sizing: border-box;
-    background-color: #49beb7;
-    color: #f2f2f2;
-    border: 0;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-    cursor: pointer;
-    transition: .3s;
-
-    &:hover{
-        background-color: #085f63;
-        color: #f1f1f1;
+    
+    &:hover {
+        color: #ffcc00;
     }
 `;
 
 const SaquesContent = styled.div`
     width: 100%;
-    background: linear-gradient(to right, #003566, #001D3D , #003566);  
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
-    margin-top: 50px;
-    padding-bottom: 30px;
-    box-shadow: 3px 3px 1px black;
-
-    @media (max-width: 915px){
-        padding: 20px;
-    }
 `;
 
 const SearchBar = styled.div`
-    width: 100%;
-    box-sizing: border-box;
-    padding: 30px;
-    background: linear-gradient(to right, #003566, #001D3D , #003566); 
-    input{
-        box-sizing: border-box;
-        width: 100%;
-        height: 40px;
-        background: linear-gradient(to right, #000814, #001D3D, #000814);
-        border: 0;
-        padding-left: 30px;
-        box-shadow: 1px 1px 2px black;
-        color: rgba(255, 195, 0, 1);
-        font-weight: 600;
-        text-transform: uppercase;
-    }
+    margin-bottom: 20px;
 
-    @media (max-width: 915px){
-        padding: 0px;
+    input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
     }
 `;
 
 const SaquesTable = styled.div`
     width: 100%;
-    background: linear-gradient(to right, #003566, #001D3D , #003566); 
-    box-sizing: border-box;
-    padding: 0 30px 0 30px;
-    margin-top: 30px;
-    min-height: 300px;
-    max-height: 500px;
-    overflow-y: hidden;
-    overflow-x: hidden;
-
-    display: flex;
-    justify-content: center;
-    @media (max-width: 915px){
-        
-        min-height: 300px;
-        padding: 0;
-        border: 2px solid rgba(0,0,0,0.2);
-        max-height: 250px;
-    }
+    overflow-x: auto;
 `;
 
 const TableContainer = styled.div`
     width: 100%;
-    box-sizing: border-box;    
-    overflow-y: scroll;
-    overflow-x: scroll;
 `;
 
 const Table = styled.table`
     width: 100%;
-    overflow: auto; 
     border-collapse: collapse;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.2);
-    position: relative;
 `;
 
 const TableHeader = styled.thead`
-    color: #f2f2f2;
+    background: #003566;
+    color: #fff;
 `;
 
-const TableRow = styled.tr`
-    background: #000814; 
-    color: #FFC300;
-
-    &:nth-child(even) {
-        color: #FFC300;
-        background-color: #001D3D;
-    }
-`;
+const TableRow = styled.tr``;
 
 const TableHeaderCell = styled.th`
-    padding: 15px;
-    text-align: center;
-    color: #219ebc;
-    background-color: #001D3D;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    min-width: 100px; /* Ajuste conforme necessário */
-    white-space: nowrap;
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
 `;
 
-const TableBody = styled.tbody`
-    background-color: white;
-`;
+const TableBody = styled.tbody``;
 
 const TableCell = styled.td`
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    min-width: 100px; /* Ajuste conforme necessário */
-    white-space: nowrap;
+    padding: 10px;
+    border: 1px solid #ccc;
 `;
 
-const OptionsButtons = styled.div`
-    // display: flex;
-    // justify-content: center;
-    // gap: 2px;
-
-    // button{
-    //     cursor: pointer;
-    // }
-
+const Pagination = styled.div`
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+`;
 
-    img{
-        width: 40px;
-        cursor: pointer;
-        transition: .3s;
+const PaginationButton = styled.button`
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    background: #003566;
+    color: #fff;
+    cursor: pointer;
+    margin: 0 10px;
+    border-radius: 5px;
+    font-size: 16px;
 
-        &:hover{
-            transform: scale(1.3);
-        }
+    &:disabled {
+        background: #666;
+        cursor: not-allowed;
     }
 `;
 
-const ReloadData = styled.div`
-    width: 100%;
-    display: flex;
-    justify-content: end;
-
-    p{
-        margin: 0;
-        padding-right: 60px;
-        cursor: pointer;
-
-        img{
-            width: 30px;
-            transition: .3s;
-
-            &:hover{
-                transform: scale(1.3);
-            }
-        }
-    }
-
+const PaginationInfo = styled.span`
+    font-size: 16px;
+    color: #fff;
 `;

@@ -75,7 +75,7 @@ export const getDepositos = () => {
             // Verifique o status da resposta
             if (response.status === 200) {
                 const uniqueDeposit = response.data;
-                console.log('Unique Deposit Data:', uniqueDeposit);
+
 
                 dispatch({
                     type: DepositosActionTypes.GET,
@@ -155,24 +155,28 @@ function convertStringToNumber(str) {
     return parseFloat(withDot);
 }
 
-// actions.js
+
 export const setAceitoSaques = (userId, saqueId, aceito, dataSolicitacao, methodPayment, obs, valor, fundo_escolhido) => {
     return async (dispatch) => {
         try {
-
-            axios.post('http://localhost:4000/clientes/editarSaque', {
+            const response = await axios.post('http://localhost:4000/clientes/editarSaque', {
                 docId: userId,
                 DATASOLICITACAO: dataSolicitacao,
                 fieldName: "STATUS",
                 fieldNewValue: aceito ? 2 : 4,
-            })
-
-            const response = await fetch('http://localhost:4000/clientes/obterSaques');
-            const saquesUpdated = response.data
-            dispatch({
-                type: SaquesActionTypes.UPDATE,
-                payload: { userId, saquesUpdated }
             });
+
+            // Verifica se o status de resposta é 200 (OK)
+            if (response.status === 200) {
+                const responseFetch = await fetch('http://localhost:4000/clientes/obterSaques');
+                const saquesUpdated = await responseFetch.json(); // Converte a resposta para JSON
+                dispatch({
+                    type: SaquesActionTypes.UPDATE,
+                    payload: { userId, saquesUpdated }
+                });
+            } else {
+                console.error('Failed to update saque status:', response.statusText);
+            }
 
         } catch (error) {
             console.error('Error updating saques status:', error);

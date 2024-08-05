@@ -11,27 +11,21 @@ export default function Home() {
                     <StyledLink to="/depositos">
                         <Option color="#FFC300">VALIDAR DEPOSITOS</Option>
                     </StyledLink>                    
-                    <StyledLink to="/">
-                        <Option color="#219ebc">HOME</Option>
-                    </StyledLink>
                     <StyledLink to="/clientes">
-                        <Option color="#FFC300">CLIENTES</Option>
+                        <Option color="#219ebc">CLIENTES</Option>
                     </StyledLink>
                     <StyledLink to="/usuarios">
-                        <Option color="#219ebc">USUÁRIOS</Option>
+                        <Option color="#FFC300">USUÁRIOS</Option>
                     </StyledLink>
                     <StyledLink to="/contratos">
-                        <Option color="#FFC300">CONTRATOS</Option>
+                        <Option color="#219ebc">CONTRATOS</Option>
                     </StyledLink>
                     <StyledLink to="/saques">
-                        <Option color="#219ebc">VALIDAR SAQUES</Option>
+                        <Option color="#FFC300">VALIDAR SAQUES</Option>
                     </StyledLink>
                     <StyledLink to="/saquesFeitos">
                         <Option color="#219ebc">OPERAÇÕES DE SAQUES</Option>
                     </StyledLink>
-                    {/* <StyledLink to="/configuracoes">
-                        <Option color="#FFC300">CONFIGURAÇÕES</Option>
-                    </StyledLink> */}
                     <StyledLink to="/validacao">
                         <Option color="#FFC300">VALIDAÇÃO DE DOCUMENTOS</Option>
                     </StyledLink>
@@ -39,10 +33,10 @@ export default function Home() {
                         <Option color="#219ebc">NOTÍCIAS</Option>
                     </StyledLink>
                     <StyledLink to="/rendimentos">
-                        <Option color="#219ebc">RODAR RENDIMENTO DIÁRIO</Option>
+                        <Option color="#FFC300">RODAR RENDIMENTO DIÁRIO</Option>
                     </StyledLink>
                     <StyledLink to="/funcoes">
-                        <Option color="#219ebc">FUNÇÕES PLATAFORMA</Option>
+                        <Option color="#FFC300">FUNÇÕES PLATAFORMA</Option>
                     </StyledLink>
                 </HomeOptions>
 

@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import * as S from './PaginaClienteStyle';
+import axios from "axios";
+import { getClients } from "../ASSETS/assets";
 
-export default function PaginaCliente({ clienteData, handleClose }) {
-    if (!clienteData) return null;
-
-    const [editedData, setEditedData] = useState(clienteData);
+export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
+    const [editedData, setEditedData] = useState(clienteData || {});
     const [hasChanges, setHasChanges] = useState(false);
 
     useEffect(() => {
-        setEditedData(clienteData);
+        if (clienteData) {
+            setEditedData(clienteData);
+        }
     }, [clienteData]);
+
+    if (!clienteData) return null;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -20,12 +24,36 @@ export default function PaginaCliente({ clienteData, handleClose }) {
         });
     };
 
-    const handleSave = () => {
-        // Lógica para salvar as alterações no backend ou estado global
-        console.log('Dados salvos:', editedData);
+    const handleSave = async () => {
+        const changes = Object.keys(editedData).reduce((acc, key) => {
+            if (editedData[key] !== clienteData[key]) {
+                acc.push({ field: key, fieldNewValue: editedData[key] });
+            }
+            return acc;
+        }, []);
+
+        // Imprime as alterações
+        console.log('Campos alterados:', changes);
+
+        try {
+            const response = await axios.post('http://localhost:4000/clientes/updateClientMoreThanOneInfo', {
+                docId: clienteData.CPF,
+                updates: changes
+            });
+
+            // Verifica o status da resposta
+            if (response.status === 200) {
+                alert("Dados alterados com sucesso");
+                getClients(setUsers)
+            } else {
+                console.log("Ocorreu um erro ao alterar os dados: ", response);
+            }
+        } catch (error) {
+            alert("Houve um erro ao alterar as informações do cliente: " + error.message);
+        }
+
         handleClose();
     };
-
 
     return (
         <S.PaginaClienteContainer>
@@ -44,7 +72,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="NAME"
-                        value={editedData.NAME}
+                        value={editedData.NAME || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -62,7 +90,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="USERNAME"
-                        value={editedData.USERNAME}
+                        value={editedData.USERNAME || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -71,7 +99,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="email"
                         name="EMAIL"
-                        value={editedData.EMAIL}
+                        value={editedData.EMAIL || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -80,7 +108,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="CONTACT"
-                        value={editedData.CONTACT ? editedData.CONTACT : ''}
+                        value={editedData.CONTACT || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -89,7 +117,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="ADRESS"
-                        value={editedData.ADRESS}
+                        value={editedData.ADRESS || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -98,7 +126,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="NEIGHBORHOOD"
-                        value={editedData.NEIGHBORHOOD}
+                        value={editedData.NEIGHBORHOOD || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -107,7 +135,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="CITY"
-                        value={editedData.CITY}
+                        value={editedData.CITY || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -116,7 +144,7 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="POSTALCODE"
-                        value={editedData.POSTALCODE}
+                        value={editedData.POSTALCODE || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
@@ -125,13 +153,11 @@ export default function PaginaCliente({ clienteData, handleClose }) {
                     <input
                         type="text"
                         name="JOBTITLE"
-                        value={editedData.JOBTITLE ? editedData.JOBTITLE : ''}
+                        value={editedData.JOBTITLE || ''}
                         onChange={handleInputChange}
                     />
                 </S.ClientDataBox>
             </S.ClientDataContainer>
-
-
         </S.PaginaClienteContainer>
     );
 }
