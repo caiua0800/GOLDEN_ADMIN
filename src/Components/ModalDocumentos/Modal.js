@@ -3,6 +3,10 @@ import * as M from './ModalStyle';
 import axios from "axios";
 import Loading from "../Loader";
 
+
+const base_url = process.env.REACT_APP_API_BASE_URL;
+const rota_url = process.env.REACT_APP_API_VAL_UPDATE;
+
 export default function Modal({ cliente, handleCloseModal }) {
 
     const [load, setLoad] = useState(false);
@@ -19,7 +23,7 @@ export default function Modal({ cliente, handleCloseModal }) {
         }
 
         try {
-            const response = axios.post('http://localhost:4000/clientes/updateClienteValidacao', sendData)
+            const response = axios.post(`${base_url}${rota_url}`, sendData)
 
             alert("Cliente atualizado com sucesso!");
 

@@ -4,6 +4,11 @@ import * as S from './ModalNovoSaqueStyle';
 import { getClients } from "../ASSETS/assets";
 import axios from "axios";
 
+
+const base_url = process.env.REACT_APP_API_BASE_URL;
+const rota_url = process.env.REACT_APP_API_CRIAR_SAQUE_ADM;
+
+
 export default function ModalNovoSaque({ setModalNovoSaque }) {
     const [selectedClient, setSelectedClient] = useState(null);
     const [clients, setClients] = useState([]);
@@ -46,7 +51,7 @@ export default function ModalNovoSaque({ setModalNovoSaque }) {
         }
 
         try {
-            const response = axios.post('http://localhost:4000/clientes/createSaqueAdmin', {
+            const response = axios.post(`${base_url}${rota_url}`, {
                 docId: selectedClient.CPF,
                 saqueData: {
                     STATUS: 2,

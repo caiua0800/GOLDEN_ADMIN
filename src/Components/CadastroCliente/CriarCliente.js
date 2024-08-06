@@ -6,6 +6,9 @@ import axios from "axios";
 
 const platformIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/logoGoldenToken-removebg-preview.png?alt=media&token=5109abf4-41b8-4c9a-8803-4b4adbab0cb2';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_CRIAR_CLIENTE = process.env.REACT_APP_API_CRIAR_CLIENTE;
+
 export default function CadastroPage({ setModalCriarCliente }) {
     // Estados para os inputs
     const [nome, setNome] = useState('');
@@ -52,7 +55,7 @@ export default function CadastroPage({ setModalCriarCliente }) {
         };
 
         try {
-            const response = await axios.post('http://localhost:4000/clientes/criarCliente', clientData);
+            const response = await axios.post(`${API_BASE_URL}${API_CRIAR_CLIENTE}`, clientData);
             setResposta(response.data); // Atualiza o estado com a resposta do servidor
             alert(`Resposta do Servidor: ${response.data}`); // Mostra a resposta em um alerta
         } catch (error) {

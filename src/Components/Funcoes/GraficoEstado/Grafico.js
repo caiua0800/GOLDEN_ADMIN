@@ -5,13 +5,16 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
+const base_url = process.env.REACT_APP_API_BASE_URL
+const urlRota = process.env.REACT_APP_API_OBTER_ESTADO
+
 const ClientsByStateChart = () => {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/clientes/getClientsByState');
+                const response = await axios.get(`${base_url}${urlRota}`);
                 const stateData = response.data;
 
                 // Extrair estados e quantidades de clientes

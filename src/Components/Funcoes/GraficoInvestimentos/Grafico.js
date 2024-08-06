@@ -5,13 +5,16 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
+const base_url = process.env.REACT_APP_API_BASE_URL
+const urlRota = process.env.REACT_APP_API_OBTER_INVESTIMENTO
+
 const TopClientsChart = () => {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/clientes/getInvestimentosData');
+                const response = await axios.get(`${base_url}${urlRota}`);
                 const investments = response.data;
 
                 // Função para converter string de data em objeto Date

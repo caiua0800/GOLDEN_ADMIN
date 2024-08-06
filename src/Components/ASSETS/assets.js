@@ -1,7 +1,11 @@
-// assets.js
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../DATABASE/firebaseConfig';
 import axios from 'axios';
+
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_GET_CLIENTS = process.env.REACT_APP_API_GET_CLIENTS;
 
 export function addWeekToDateString(dateString) {
     const [day, month, year] = dateString.split('/').map(Number);
@@ -16,7 +20,7 @@ export function addWeekToDateString(dateString) {
 
 export const formatNumber = (value) => {
     if (typeof value !== 'number' || isNaN(value)) {
-        return '0.00'; // Valor padrão caso o valor seja indefinido ou não seja um número
+        return '0.00'; 
     }
     return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
@@ -35,7 +39,7 @@ export const getClients = async (setUsers) => {
     try {
        
         console.log("Get Clients....")
-        const response = await axios.get('http://localhost:4000/clientes/getAllClientesWithPlusInfo');
+        const response = await axios.get(`${API_BASE_URL}${API_GET_CLIENTS}`);
         const userList = response.data;
 
        console.log(userList)

@@ -6,6 +6,14 @@ import axios from "axios";
 import Loading from "../Loader";
 import { generateRandomString } from "../ASSETS/assets";
 
+const base_url = process.env.REACT_APP_API_BASE_URL;
+const url_rota_rodar_all_ativos = process.env.REACT_APP_API_RODAR_ALL_ATIVOS;
+const url_rota_edit_saque = process.env.REACT_APP_API_EDITAR_SAQUE;
+const url_rota_edit_ctr = process.env.REACT_APP_API_EDITAR_CONTRATO;
+const url_rota_create_ctr = process.env.REACT_APP_API_CRIAR_CONTRATO;
+
+// `${base_url}${url_rota_edit_ctr}`
+
 export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, modalData, type }) {
     
     const [email, setEmail] = useState('');
@@ -47,7 +55,7 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
     }
 
     const rodarRendimento = async () => {
-        const rota = 'http://localhost:4000/clientes/atualizarTodosContratosAtivos';
+        const rota = `${base_url}${url_rota_rodar_all_ativos}`;
         if (await verificarLogin(email, senha)) {
             setLoading(true); // Inicia o carregamento
             setMensagemAviso(true);
@@ -79,7 +87,7 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
 
     const updateSaque = async () => {
         if (await verificarLogin(email, senha)) {
-            const response = await axios.post('http://localhost:4000/clientes/editarSaque', {
+            const response = await axios.post(`${base_url}${url_rota_edit_saque}`, {
                 docId: modalData.CLIENT_CPF,
                 DATASOLICITACAO: modalData.DATASOLICITACAO,
                 fieldName: 'STATUS',
@@ -105,7 +113,7 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
     const updateDeposito = async () => {
         if (await verificarLogin(email, senha)) {
 
-            const response = await axios.post('http://localhost:4000/clientes/editarContrato', {
+            const response = await axios.post(`${base_url}${url_rota_edit_ctr}`, {
                 docId: modalData.CLIENT_CPF,
                 IDCONTRATO: modalData.IDCOMPRA,
                 fieldName: 'STATUS',
@@ -143,7 +151,7 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                     MAXIMUMQQUOTAYIELD = ''
                 } = modalData;
 
-                const response = await axios.post('http://localhost:4000/clientes/createContratoAdmin', {
+                const response = await axios.post(`${base_url}${url_rota_create_ctr}`, {
                     docId: CLIENT_CPF,
                     contratoData: {
                         COINVALUE: COINVALUE.toString(),

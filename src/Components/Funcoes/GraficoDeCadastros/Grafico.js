@@ -5,13 +5,16 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
+const base_url = process.env.REACT_APP_API_BASE_URL
+const urlRota = process.env.REACT_APP_API_OBTER_CADASTROS
+
 const GrowthChart = () => {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/clientes/obterDatasDeCadastro');
+                const response = await axios.get(`${base_url}${urlRota}`);
                 const dates = response.data; // Supondo que a resposta é um array de datas no formato "ano-mes-dia hora-minuto-segundo"
                 
                 // Função para converter string de data em objeto Date

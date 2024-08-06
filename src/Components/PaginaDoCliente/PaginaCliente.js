@@ -3,6 +3,9 @@ import * as S from './PaginaClienteStyle';
 import axios from "axios";
 import { getClients } from "../ASSETS/assets";
 
+const base_url = process.env.REACT_APP_API_BASE_URL
+const rota_url = process.env.REACT_APP_API_UPDATE_MORE_THAN_ONE_INFO
+
 export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
     const [editedData, setEditedData] = useState(clienteData || {});
     const [hasChanges, setHasChanges] = useState(false);
@@ -36,7 +39,7 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
         console.log('Campos alterados:', changes);
 
         try {
-            const response = await axios.post('http://localhost:4000/clientes/updateClientMoreThanOneInfo', {
+            const response = await axios.post(`${base_url}${rota_url}`, {
                 docId: clienteData.CPF,
                 updates: changes
             });
