@@ -3,13 +3,17 @@ import axios from 'axios';
 import * as H from './TableStyle';
 import { formatCPF } from '../../ASSETS/assets';
 
+const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const REACT_APP_API_GET_DID_NOT_PURCHASED = process.env.REACT_APP_API_GET_DID_NOT_PURCHASED;
+
+
 export default function TabelaNoQuota() {
     const [topClients, setTopClients] = useState([]);
     const [filter, setFilter] = useState('');
     const [filteredClients, setFilteredClients] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:4000/clientes/clientsThatDidNotBought')
+        axios.get(`${REACT_APP_API_BASE_URL}${REACT_APP_API_GET_DID_NOT_PURCHASED}`)
             .then(response => {
                 setTopClients(response.data);
                 setFilteredClients(response.data);

@@ -2,11 +2,17 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import * as H from './TableStyle';
 
+
+
+
+const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const REACT_APP_API_GET_TOP_INVESTORS = process.env.REACT_APP_API_GET_TOP_INVESTORS;
+
 export default function TabelaTopClients() {
     const [topClients, setTopClients] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:4000/clientes/topInvestors')
+        axios.get(`${REACT_APP_API_BASE_URL}${REACT_APP_API_GET_TOP_INVESTORS}`)
             .then(response => {
                 setTopClients(response.data);
             })
