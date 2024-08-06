@@ -69,7 +69,13 @@ export default function Contratos() {
 
         let valorINVESTIDO = (typeof valorInvestido === 'string' ? parseFloat(valorInvestido) : valorInvestido)
 
-        return ((lucro_atual/100) * valorINVESTIDO) + valorINVESTIDO
+        let lucroATUAL = 0;
+        if(!lucro_atual)
+            lucroATUAL = 0;
+        else
+            lucroATUAL = lucro_atual
+
+        return ((lucroATUAL/100) * valorINVESTIDO) 
 
     }
 
@@ -133,8 +139,8 @@ export default function Contratos() {
                             <TableHeaderCell>DATA DE COMPRA</TableHeaderCell>
                             <TableHeaderCell>QUANTIDADE COINS</TableHeaderCell>
                             <TableHeaderCell>VALOR UNI.</TableHeaderCell>
-                            <TableHeaderCell>VALOR TOTAL</TableHeaderCell>
-                            <TableHeaderCell>TOTAL GANHO</TableHeaderCell>
+                            <TableHeaderCell>VALOR INVESTIDO</TableHeaderCell>
+                            <TableHeaderCell>TOTAL LUCRO ATUAL</TableHeaderCell>
                             <TableHeaderCell>FINALIZA EM</TableHeaderCell>
                             <TableHeaderCell>STATUS</TableHeaderCell>
                         </TableRow>

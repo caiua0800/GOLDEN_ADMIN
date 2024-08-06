@@ -1,89 +1,50 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { formatCPF, getClients, formatNumber } from "./ASSETS/assets";
-import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
 import "firebase/compat/firestore";
-import { db as firestore } from "../DATABASE/firebaseConfig"; // Certifique-se de que esta importação está correta
+import Modal from "./ModalDocumentos/Modal";
+
 
 const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e'
 
 export default function Validacao() {
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState("");
+    const [selectedUser, setSelecetedUser] = useState(null);
+    const [showModalDocs, setShowModalDocs] = useState(true);
 
     useEffect(() => {
         getClients(setUsers);
     }, []);
 
     const filteredClients = search.length > 0
-        ? users.filter(user => user.NAME.toUpperCase().includes(search.toUpperCase()))
-        : users.filter(user => !user.VERIFICADO && user.DOCSENVIADOS);
-
-    const handleCreateClient = () => {
-        window.location.href = '/criarcliente';
-    };
-
-    const handleDownloadDoc = (docUrl) => {
-        console.log(`Baixar documento: ${docUrl}`);
-        window.open(docUrl, '_blank');
-    };
-
-    const handleDownloadFace = (faceUrl) => {
-        console.log(`Baixar foto da face: ${faceUrl}`);
-        window.open(faceUrl, '_blank');
-    };
-
-    const formatCPFId = (cpf) => {
-        return cpf.replace(/[^\d]/g, ''); // Remove tudo que não for dígito
-    };
-
-    const handleAcceptUser = async (cpf) => {
-        try {
-            const formattedCPF = formatCPFId(cpf);
-            const userRef = firestore.collection("USERS").doc(formattedCPF);
-            await userRef.update({
-                VERIFICADO: true,
-            });
-            alert(`Usuário com CPF ${cpf} aceito com sucesso!`);
-            // Atualize localmente se necessário
-            setUsers(prevUsers =>
-                prevUsers.map(user =>
-                    user.CPF === cpf ? { ...user, VERIFICADO: true } : user
-                )
-            );
-        } catch (error) {
-            console.error("Erro ao aceitar usuário:", error);
-            alert(`Erro ao aceitar usuário com CPF ${cpf}`);
-        }
-    };
-
-    const handleDenyUser = async (cpf) => {
-        try {
-            const formattedCPF = formatCPFId(cpf);
-            const userRef = firestore.collection("USERS").doc(formattedCPF);
-            await userRef.update({
-                DOCSENVIADOS: false,
-            });
-            alert(`Usuário com CPF ${cpf} negado com sucesso!`);
-            // Atualize localmente se necessário
-            setUsers(prevUsers =>
-                prevUsers.map(user =>
-                    user.CPF === cpf ? { ...user, DOCSENVIADOS: false } : user
-                )
-            );
-        } catch (error) {
-            console.error("Erro ao negar usuário:", error);
-            alert(`Erro ao negar usuário com CPF ${cpf}`);
-        }
-    };
+        ? users.filter(user => (user.NAME.toUpperCase().includes(search.toUpperCase()) && (!user.DOCSVERIFICADOS && user.DOCSENVIADOS)))
+        : users.filter(user => !user.DOCSVERIFICADOS && user.DOCSENVIADOS);
 
     const handleReload = () => {
         getClients(setUsers);
     };
 
+    const handleShowModal = (usuario) => {
+        setSelecetedUser(usuario);
+        setShowModalDocs(true);
+    }
+
+
+    const handleCloseModal = () => {
+        setSelecetedUser(null);
+        setShowModalDocs(false);
+        handleReload()
+    }
+
     return (
         <ClientsContainer>
+
+            {showModalDocs && (
+                <Modal handleCloseModal={handleCloseModal} cliente={selectedUser} />
+            )}
+
             <ClientFirstContent>
                 <AreaTitle>VALIDAÇÃO DE DOCUMENTOS</AreaTitle>
             </ClientFirstContent>
@@ -110,8 +71,6 @@ export default function Validacao() {
                                     <TableHeaderCell>CPF</TableHeaderCell>
                                     <TableHeaderCell>E-MAIL</TableHeaderCell>
                                     <TableHeaderCell>CELULAR</TableHeaderCell>
-                                    <TableHeaderCell>FOTO DO DOC.</TableHeaderCell>
-                                    <TableHeaderCell>FOTO DA FACE</TableHeaderCell>
                                     <TableHeaderCell>OPÇÕES</TableHeaderCell>
                                 </TableRow>
                             </TableHeader>
@@ -122,12 +81,9 @@ export default function Validacao() {
                                         <TableCell>{formatCPF(user.CPF)}</TableCell>
                                         <TableCell>{user.EMAIL}</TableCell>
                                         <TableCell>{user.CONTACT}</TableCell>
-                                        <TableCell><button onClick={() => handleDownloadDoc(user.DOCURL)}>VER</button></TableCell>
-                                        <TableCell><button onClick={() => handleDownloadFace(user.FACEURL)}>VER</button></TableCell>
                                         <TableCell>
                                             <OptionsVerificacao>
-                                                <button onClick={() => handleAcceptUser(user.CPF)}>ACEITAR</button>
-                                                <button onClick={() => handleDenyUser(user.CPF)}>NEGAR</button>
+                                                <button onClick={() => {handleShowModal(user)}}>VERIFICAR</button>
                                             </OptionsVerificacao>
                                         </TableCell>
                                     </TableRow>

@@ -6,7 +6,8 @@ import axios from "axios";
 import Loading from "../Loader";
 import { generateRandomString } from "../ASSETS/assets";
 
-export default function ValidarCredenciais({ setModalAberto, modalData, type }) {
+export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, modalData, type }) {
+    
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [aceito, setAceito] = useState(null);
@@ -26,14 +27,55 @@ export default function ValidarCredenciais({ setModalAberto, modalData, type }) 
 
 
     const updateThing = async () => {
-        if (type === 'SAQUE') {
-            updateSaque();
-        } else if (type === 'DEPOSITO') {
-            updateDeposito();
-        } else if (type === 'CRIAR_DEPOSITO') {
-            criarDeposito()
+
+        switch (type) {
+            case 'SAQUE':
+                updateSaque();
+                break;
+            case 'DEPOSITO':
+                updateDeposito();
+                break;
+            case 'CRIAR_DEPOSITO':
+                criarDeposito();
+                break;
+            case 'RODAR_RENDIMENTO':
+                rodarRendimento();
+                break;
+            default:
+                break;
         }
     }
+
+    const rodarRendimento = async () => {
+        const rota = 'http://localhost:4000/clientes/atualizarTodosContratosAtivos';
+        if (await verificarLogin(email, senha)) {
+            setLoading(true); // Inicia o carregamento
+            setMensagemAviso(true);
+            try {
+                const response = await axios.get(rota);
+                
+    
+                if (response.data.failedUpdates && response.data.failedUpdates.length > 0) {
+                    alert(`Contratos atualizados com sucesso. Total de documentos atualizados: ${response.data.message}\n\nContratos que falharam:\n${response.data.failedUpdates.map(fail => `Cliente: ${fail.NAME}, CPF: ${fail.CPF}, ID Compra: ${fail.IDCOMPRA}`).join('\n')}`);
+                    setLoading(false);
+                } else {
+                    setLoading(false);
+                    alert(response.data);
+                }
+                setMensagemAviso(false);
+
+            } catch (error) {
+                setLoading(false); // Para o carregamento em caso de erro
+                setMensagemAviso(false);
+                alert(`Houve um erro ao tentar fazer requisição para a rota ${rota}\nERRO: ${error}`);
+            }
+        } else {
+            alert("CREDENCIAIS INVÁLIDAS");
+                setMensagemAviso(false);
+                setLoading(false);
+        }
+    }
+    
 
     const updateSaque = async () => {
         if (await verificarLogin(email, senha)) {
@@ -167,7 +209,7 @@ export default function ValidarCredenciais({ setModalAberto, modalData, type }) 
                     placeholder="Senha"
                 />
 
-                {type != 'CRIAR_DEPOSITO' && (
+                {(type != 'CRIAR_DEPOSITO' && type != 'RODAR_RENDIMENTO') && (
                     <S.CheckArea>
                         <label>
                             <input

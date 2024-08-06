@@ -13,10 +13,10 @@ import store from './redux/store'; // Import your Redux store
 import { useEffect } from 'react';
 import { loginUser } from './redux/actions';
 import SignUpPage from './Components/CreateClient';
-import Saques from './Components/Saques';
+import Saques from './Components/Saques/Saques';
 import Validacao from './Components/Validacao';
 import CreateNews from './Components/CreateNews';
-import Rendimentos from './Components/Rendimentos';
+import Rendimento from './Components/Rendimento/Rendimentos';
 import SaquesFeitos from './Components/SaquesFeitos';
 import HomeFuncoes from './Components/Funcoes/Home/Home'
 import DynamicChart from './Components/Funcoes/GraficoFisica/DynamicChart';
@@ -64,7 +64,7 @@ function App() {
               <Route path="/criarcliente" element={<SignUpPage />} />
               <Route path="/saques" element={<Saques />} />
               <Route path="/validacao" element={<Validacao />} />
-              <Route path="/rendimentos" element={<Rendimentos />} />
+              <Route path="/rendimentos" element={<Rendimento />} />
               <Route path="/saquesFeitos" element={<SaquesFeitos />} />
               <Route path="/funcoes" element={<HomeFuncoes />} />
               <Route path="/fisica" element={<DynamicChart />} />

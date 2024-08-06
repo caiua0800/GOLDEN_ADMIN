@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
-import { getSaques, setAceitoSaques } from '../redux/actions';
+import { getSaques, setAceitoSaques } from '../../redux/actions';
+import ValidarCredenciais from "../ValidarCredenciais/ValidarCredenciais";
+import ModalNovoSaque from "./ModalNovoSaque";
 
-import ValidarCredenciais from "./ValidarCredenciais/ValidarCredenciais";
-const closeIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/cancel-close-delete-svgrepo-com.png?alt=media&token=b0d9ff03-fef7-4eb4-8bae-f6624f1483f2';
+
 const payIco = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/payment-pay-later-svgrepo-com.png?alt=media&token=13b149d1-cdad-49e3-9e78-e85ca4940274';
 const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e';
+
+
 
 export default function Saques() {
     const [search, setSearch] = useState('');
@@ -15,43 +18,33 @@ export default function Saques() {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [modalAberto, setModalAberto] = useState(false);
     const [modalData, setModalData] = useState({})
+    const [modalNovoSaque, setModalNovoSaque] = useState(false);
+
     const dispatch = useDispatch();
     const saques = useSelector(state => state.SaquesReducer.saques);
 
-    useEffect(() => {
-        dispatch(getSaques());
-    }, [dispatch]);
 
+    useEffect(() => {dispatch(getSaques());}, [dispatch]);
+    useEffect(() => {setCurrentPage(1);}, [search]);
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [search]);
 
     const filteredClients = search.length > 0
-        ? saques.filter(user => {
-            return (
-                (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
-                (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))
-            );
-        }) : saques;
+    ? saques.filter(user => (
+        ((user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
+        (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))) &&
+        user.STATUS === 1
+    )) : saques.filter(user => user.STATUS === 1);
+
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredClients.slice(indexOfFirstItem, indexOfLastItem);
 
+    const handleReload = () => {dispatch(getSaques());};
 
-    const handleReload = () => {
-        dispatch(getSaques());
-    };
+    const handlePreviousPage = () => {setCurrentPage(prev => Math.max(prev - 1, 1));};
 
-
-    const handlePreviousPage = () => {
-        setCurrentPage(prev => Math.max(prev - 1, 1));
-    };
-
-    const handleNextPage = () => {
-        setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredClients.length / itemsPerPage)));
-    };
+    const handleNextPage = () => {setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredClients.length / itemsPerPage)));};
 
     const handleStatus = (status) => {
         switch (status) {
@@ -85,9 +78,14 @@ export default function Saques() {
                     type="SAQUE"
                 />
             )}
+
+            {modalNovoSaque && (
+                <ModalNovoSaque setModalNovoSaque={setModalNovoSaque} />
+            )}
+
             <SaquesFirstContent>
                 <AreaTitle>VALIDAR SAQUES</AreaTitle>
-                <AddSaques>+ REALIZAR NOVO SAQUE</AddSaques>
+                <AddSaques onClick={() => {setModalNovoSaque(true)}}>+ REALIZAR NOVO SAQUE</AddSaques>
             </SaquesFirstContent>
 
             <SaquesContent>
@@ -151,12 +149,9 @@ export default function Saques() {
                     </Pagination>
                 </SaquesTable>
             </SaquesContent>
-
-
         </SaquesContainer>
     );
 }
-
 
 
 

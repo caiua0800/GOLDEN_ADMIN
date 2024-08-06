@@ -33,11 +33,12 @@ export const formatCPF = (cpf) => {
 
 export const getClients = async (setUsers) => {
     try {
-        // Fazer a requisição GET para a API
+       
+        console.log("Get Clients....")
         const response = await axios.get('http://localhost:4000/clientes/getAllClientesWithPlusInfo');
         const userList = response.data;
 
-        // Atualizar o estado com os dados recebidos
+       console.log(userList)
         setUsers(userList);
     } catch (error) {
         console.error("Error getting clients: ", error);
@@ -113,4 +114,42 @@ export const generateRandomString = () => {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+};
+
+
+export const formatCPFCriarCliente = (value) => {
+    return value
+        .replace(/\D/g, '') // Remove tudo o que não é dígito
+        .replace(/(\d{3})(\d)/, '$1.$2') // Adiciona ponto após 3 dígitos
+        .replace(/\.(\d{3})(\d)/, '.$1.$2') // Adiciona ponto após 3 dígitos
+        .replace(/\.(\d{3})(\d)/, '.$1-$2') // Adiciona hífen após 3 dígitos
+        .replace(/(-\d{2})\d+?$/, '$1'); // Limita a 11 dígitos
+};
+
+export const formatTelefone = (value) => {
+    return value
+        .replace(/\D/g, '') // Remove tudo o que não é dígito
+        .replace(/(\d{2})(\d)/, '($1) $2') // Adiciona parênteses e espaço
+        .replace(/(\d{5})(\d)/, '$1-$2') // Adiciona hífen
+        .replace(/(-\d{4})\d+?$/, '$1'); // Limita a 11 dígitos
+};
+
+export const formatCEP = (value) => {
+    return value
+        .replace(/\D/g, '') // Remove tudo o que não é dígito
+        .replace(/(\d{5})(\d)/, '$1-$2') // Adiciona hífen após 5 dígitos
+        .replace(/(-\d{3})\d+?$/, '$1'); // Limita a 8 dígitos
+};
+
+export const removeFormatting = (type, value) => {
+    switch (type) {
+        case 'cpf':
+            return value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+        case 'telefone':
+            return value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+        case 'cep':
+            return value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+        default:
+            return value; // Retorna o valor sem alterações se o tipo não corresponder a nenhum dos casos
+    }
 };

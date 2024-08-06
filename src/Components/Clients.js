@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { formatCPF, getClients, formatNumber, formatDate } from "./ASSETS/assets";
 import Pagination from "./Pagination"; 
 import PaginaCliente from "./PaginaDoCliente/PaginaCliente";
+import CadastroPage from "./CadastroCliente/CriarCliente";
+
 
 export default function Clientes() {
     const [users, setUsers] = useState([]);
@@ -14,6 +16,8 @@ export default function Clientes() {
     // Estado para paginação
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10); 
+
+    const [modalCriarCliente, setModalCriarCliente] = useState(false);
 
     useEffect(() => {
         getClients(setUsers);
@@ -37,9 +41,6 @@ export default function Clientes() {
 
     const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
-    const handlereateClient = () => {
-        window.location.href = '/criarcliente';
-    };
 
     const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
 
@@ -52,16 +53,25 @@ export default function Clientes() {
     const handleUnselectClient = () => {
         setExistClient(false);
         setSelectedClient(null);
+    } 
+
+    const handleModalCriarClienteOpen = () => {
+        setModalCriarCliente(true);
     }
 
     return (
         <ClientsContainer>
 
+            {
+                modalCriarCliente && (
+                    <CadastroPage setModalCriarCliente={setModalCriarCliente} />
+                )
+            }
 
             <PaginaCliente setUsers={setUsers} handleClose={handleUnselectClient} clienteData={selectedClient} />
             <ClientFirstContent>
                 <AreaTitle>CLIENTES</AreaTitle>
-                <AddClient onClick={handlereateClient}>+ ADICIONAR CLIENTE</AddClient>
+                <AddClient onClick={handleModalCriarClienteOpen}>+ ADICIONAR CLIENTE</AddClient>
             </ClientFirstContent>
 
             <Clients>
