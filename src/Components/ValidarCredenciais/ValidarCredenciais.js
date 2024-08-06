@@ -148,8 +148,9 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                     RENDIMENTO_ATUAL = 0,
                     MAXIMUMNUMBEROFDAYSTOYIELD = '',
                     TOTALSPENT = 0,
-                    MAXIMUMQQUOTAYIELD = ''
+                    MAXIMUMQUOTAYIELD = ''
                 } = modalData;
+
 
                 const response = await axios.post(`${base_url}${url_rota_create_ctr}`, {
                     docId: CLIENT_CPF,
@@ -158,10 +159,10 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                         STATUS: 1,
                         IDCOMPRA: generateRandomString(),
                         COINS: COINS.toString(),
-                        RENDIMENTO_ATUAL: RENDIMENTO_ATUAL.toString(),
+                        RENDIMENTO_ATUAL: RENDIMENTO_ATUAL,
                         MAXIMUMNUMBEROFDAYSTOYIELD: MAXIMUMNUMBEROFDAYSTOYIELD.toString(),
                         TOTALSPENT: TOTALSPENT.toString(),
-                        MAXIMUMQQUOTAYIELD: MAXIMUMQQUOTAYIELD.toString()
+                        MAXIMUMQUOTAYIELD: MAXIMUMQUOTAYIELD.toString()
                     }
                 });
 

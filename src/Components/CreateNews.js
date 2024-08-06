@@ -1,8 +1,8 @@
-// createNews.js
 import React, { useState } from "react";
 import styled from "styled-components";
-
 import { storage, db } from "../DATABASE/firebaseConfig"; 
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
 
 function ModalComponent({ onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
@@ -30,32 +30,23 @@ function ModalComponent({ onClose }) {
     const handleUpload = () => {
         if (selectedImage) {
             const randomName = Math.random().toString(36).substring(7);
-            const uploadTask = storage.ref(`news/${randomName}`).putString(selectedImage, 'data_url');
+            const imageRef = ref(storage, `news/${randomName}`);
+            
+            uploadString(imageRef, selectedImage, 'data_url').then((snapshot) => {
+                const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                setFileUploadProgress(progress);
 
-            uploadTask.on(
-                "state_changed",
-                (snapshot) => {
-                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                    setFileUploadProgress(progress);
-                },
-                (error) => {
-                    console.error(error);
-                },
-                () => {
-                    storage
-                        .ref("news")
-                        .child(randomName)
-                        .getDownloadURL()
-                        .then((url) => {
-                            saveNewsData(url); // Salva os dados da notícia após obter a URL da imagem
-                            console.log("URL do arquivo:", url);
-                            setImageUrl(url); // Salva a URL da imagem no estado
-                        })
-                        .catch((error) => {
-                            console.error("Erro ao obter a URL do arquivo:", error);
-                        });
-                }
-            );
+                return getDownloadURL(imageRef);
+            })
+            .then((url) => {
+                saveNewsData(url); // Salva os dados da notícia após obter a URL da imagem
+                setImageUrl(url); // Salva a URL da imagem no estado
+                alert("Imagem enviada com sucesso!"); // Alerta de sucesso
+            })
+            .catch((error) => {
+                console.error("Erro ao fazer upload da imagem:", error);
+                alert("Erro ao enviar a imagem. Tente novamente."); // Alerta de erro
+            });
         }
     };
 
@@ -63,7 +54,7 @@ function ModalComponent({ onClose }) {
         const date = new Date();
         const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
 
-        db.collection('NEWS').add({
+        addDoc(collection(db, 'NEWS'), {
             title: title,
             body: body,
             imageUrl: imageUrl,
@@ -71,10 +62,12 @@ function ModalComponent({ onClose }) {
         })
             .then((docRef) => {
                 console.log("Documento adicionado com ID: ", docRef.id);
+                alert("Notícia criada com sucesso!"); // Alerta de sucesso
                 onClose(); // Fecha o modal após salvar os dados
             })
             .catch((error) => {
                 console.error("Erro ao adicionar documento: ", error);
+                alert("Erro ao criar a notícia. Tente novamente."); // Alerta de erro
             });
     };
 
@@ -140,7 +133,7 @@ export default function CreateNews() {
     );
 }
 
-
+// Seus estilos aqui
 
 
 const CreateNewsContainer = styled.div`
