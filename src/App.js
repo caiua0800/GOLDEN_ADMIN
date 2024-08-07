@@ -1,10 +1,10 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SideBar from './Components/SideBar';
-import Home from './Components/Home';
+import Home from './Components/Home/Home';
 import Clients from './Components/Clients/Clients';
 import Users from './Components/Users/Users';
-import Contratos from './Components/Contratos';
+import Contratos from './Components/Contratos/Contratos';
 import Depositos from './Components/Depositos/Depositos';
 import Login from './Components/Login';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +20,7 @@ import Rendimento from './Components/Rendimento/Rendimentos';
 import SaquesFeitos from './Components/SaquesFeitos';
 import HomeFuncoes from './Components/Funcoes/Home/Home'
 import DynamicChart from './Components/Funcoes/GraficoFisica/DynamicChart';
+import HomeController from './Components/ControladorPlataforma.js/Home';
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -32,6 +33,7 @@ const NAV_LINKS = [
   { name: "Validação Doc.", path: "/validacao" },
   { name: "Notícias", path: "/noticias" },
   { name: "Rendimentos", path: "/rendimentos" },
+  { name: "Controlador", path: "/controller" },
   { name: "Funções", path: "/funcoes" }
 ];
 
@@ -68,6 +70,7 @@ function App() {
               <Route path="/saquesFeitos" element={<SaquesFeitos />} />
               <Route path="/funcoes" element={<HomeFuncoes />} />
               <Route path="/fisica" element={<DynamicChart />} />
+              <Route path="/controller" element={<HomeController />} />
             </Routes>
           </>
         ) : (

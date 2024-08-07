@@ -2,6 +2,7 @@
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../DATABASE/firebaseConfig';
 import axios from 'axios';
+import { format, toZonedTime } from 'date-fns-tz';
 
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -20,7 +21,7 @@ export function addWeekToDateString(dateString) {
 
 export const formatNumber = (value) => {
     if (typeof value !== 'number' || isNaN(value)) {
-        return '0.00'; 
+        return '0.00';
     }
     return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
@@ -37,12 +38,12 @@ export const formatCPF = (cpf) => {
 
 export const getClients = async (setUsers) => {
     try {
-       
+
         console.log("Get Clients....")
         const response = await axios.get(`${API_BASE_URL}${API_GET_CLIENTS}`);
         const userList = response.data;
 
-       console.log(userList)
+        console.log(userList)
         setUsers(userList);
     } catch (error) {
         console.error("Error getting clients: ", error);
@@ -75,14 +76,14 @@ export function formatDate(dateString) {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
-    }else return null;
+    } else return null;
 
 }
 
 
 export function adicionarAno(data) {
 
-    if(!data)
+    if (!data)
         return null;
 
     const [dia, mes, ano] = data.split('/').map(Number);
@@ -156,4 +157,20 @@ export const removeFormatting = (type, value) => {
         default:
             return value; // Retorna o valor sem alterações se o tipo não corresponder a nenhum dos casos
     }
+};
+
+
+export const convertToLocalTime = (dateString) => {
+    const timeZone = 'America/Sao_Paulo'; // Fuso horário de São Paulo
+    const utcDate = new Date(dateString); // Cria um objeto Date a partir da string UTC
+    const zonedDate = toZonedTime(utcDate, timeZone); // Converte para o horário da zona especificada
+    const dateFormat = 'dd/MM/yyyy'; // Formato da data
+    const timeFormat = 'HH:mm:ss'; // Formato da hora
+    // Formata a data e a hora de acordo com o fuso horário
+    const formattedDate = format(zonedDate, dateFormat, { timeZone });
+    const formattedTime = format(zonedDate, timeFormat, { timeZone });
+    return {
+        data: formattedDate,
+        hora: formattedTime
+    };
 };

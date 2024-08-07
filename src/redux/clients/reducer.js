@@ -1,4 +1,3 @@
-// redux/clients/reducer.js
 const initialState = {
     clients: [],
     loading: false,

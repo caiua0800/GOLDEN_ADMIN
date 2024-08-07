@@ -35,10 +35,13 @@ export default function Depositos() {
         setCurrentPage(1);
     }, [search]);
 
-    const filteredDepositos = search.length > 0
-        ? depositos.filter(user => (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
-            (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase())))
-        : depositos;
+    const filteredDepositos = depositos.filter(user => user.STATUS === 4)
+        .filter(user =>
+            (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
+            (user.NAME && user.NAME.includes(search.toUpperCase())) ||
+            (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase())) ||
+            (user.CPF && user.CPF.includes(search.toUpperCase()))
+        );
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -50,8 +53,11 @@ export default function Depositos() {
 
     const filteredClients = clients.filter(client =>
         (client.NAME && client.NAME.toUpperCase().includes(clientSearch.toUpperCase())) ||
-        (client.CPF && client.CPF.includes(clientSearch))
+        (client.CPF && client.CPF.includes(clientSearch)) ||
+        (client.CLIENT_NAME && client.CLIENT_NAME.toUpperCase().includes(clientSearch.toUpperCase())) ||
+        (client.CLIENT_CPF && client.CLIENT_CPF.includes(clientSearch))
     );
+
 
     const handleHideModal = () => { setModal(false); }
     const handleShowModal = () => { setModal(true); }
@@ -112,7 +118,13 @@ export default function Depositos() {
     };
 
 
+    const handleName = (name1, name2) => {
+        return name1 ? name1 : name2
+    }
 
+    const handleCPF = (cpf1, cpf2) => {
+        return cpf1 ? formatCPF(cpf1) : formatCPF(cpf2)
+    }
 
     return (
         <S.DepositosContainer>
@@ -159,10 +171,10 @@ export default function Depositos() {
                             </S.TableHeader>
                             <S.TableBody>
                                 {currentItems.map((user, index) => (
-                                    <S.TableRow key={index}>
+                                    <S.TableRow key={index} onClick={() => { console.log(user) }}>
                                         <S.TableCell>{user.IDCOMPRA}</S.TableCell>
-                                        <S.TableCell>{user.NAME !== 'xxx xxxx' ? user.NAME : 'Indefinido'}</S.TableCell>
-                                        <S.TableCell>{user.CPF ? formatCPF(user.CPF) : 'Não Informado'}</S.TableCell>
+                                        <S.TableCell>{handleName(user.NAME, user.CLIENT_NAME)}</S.TableCell>
+                                        <S.TableCell>{handleCPF(user.CLIENT_CPF, user.CPF)}</S.TableCell>
                                         <S.TableCell>{user.PURCHASEDATE}</S.TableCell>
                                         <S.TableCell>{user.COINS}</S.TableCell>
                                         <S.TableCell>$ {(user.TOTALSPENT)}</S.TableCell>
@@ -242,7 +254,7 @@ export default function Depositos() {
                                     </div>
                                     <div>
                                         <span>LUCRO FINAL DO CLIENTE (U$)</span>
-                                        <input type="number" value={(parseFloat(coinsQTDE) * parseFloat(valorUni)) * (parseFloat(lucroFinal)/100)} />
+                                        <input type="number" value={(parseFloat(coinsQTDE) * parseFloat(valorUni)) * (parseFloat(lucroFinal) / 100)} />
                                     </div>
                                     <div>
                                         <span>FORMA DE PAGAMENTO</span>

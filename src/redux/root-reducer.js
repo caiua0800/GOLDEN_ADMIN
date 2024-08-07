@@ -10,7 +10,7 @@ const rootReducer = combineReducers({
     userReducer,
     DepositosReducer,
     SaquesReducer,
-    clientsReducer
+    clients: clientsReducer
 });
 
 export default rootReducer;

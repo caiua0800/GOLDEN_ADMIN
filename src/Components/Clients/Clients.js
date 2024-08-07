@@ -11,7 +11,7 @@ import { fetchClients } from '../../redux/clients/actions';
 
 export default function Clientes() {
     const dispatch = useDispatch();
-    const { clients, loading } = useSelector(state => state.clientsReducer);
+    const { clients, loading } = useSelector(state => state.clients);
     const [search, setSearch] = useState('');
     const [hasInvestedMoney, setHasInvestedMoney] = useState(false); 
     const [selectedClient, setSelectedClient] = useState(null); 

@@ -65,10 +65,10 @@ export const getDepositos = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}${API_OBTER_DEPOSITOS}`);
             if (response.status === 200) {
-                const uniqueDeposit = response.data;
+                const depositos = response.data;
                 dispatch({
                     type: DepositosActionTypes.GET,
-                    payload: uniqueDeposit
+                    payload: depositos
                 });
             } else {
                 console.error('Error: Unexpected response status', response.status);

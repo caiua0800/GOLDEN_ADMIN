@@ -1,4 +1,3 @@
-// redux/clients/actions.js
 import axios from 'axios';
 
 export const fetchClientsRequest = () => ({
