@@ -53,7 +53,7 @@ export default function SideBar({ NAV_LINKS }) {
 
 const SideBarAbsolute = styled.div`
   position: fixed;
-  z-index: 999;
+  z-index: 999999;
   top: 0;
   left: 0;
 `;

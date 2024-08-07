@@ -44,8 +44,8 @@ export default function Contratos() {
 
     const filteredClients = useMemo(() => {
         return depositos.filter(user => {
-            const matchesSearch = (user.NAME && user.NAME.toUpperCase().includes(search.toUpperCase())) ||
-                (user.ID && user.ID.toUpperCase().includes(search.toUpperCase())) ||
+            const matchesSearch = (user.CLIENT_NAME && user.CLIENT_NAME.toUpperCase().includes(search.toUpperCase())) ||
+                (user.CLIENT_CPF && user.CLIENT_CPF.toUpperCase().includes(search.toUpperCase())) ||
                 (user.PURCHASEDATE && user.PURCHASEDATE.includes(search));
             const matchesStatus = statusFilter === '' ||
                 (statusFilter === 'FINALIZADOS' && user.STATUS === 2) ||
@@ -54,6 +54,8 @@ export default function Contratos() {
             return matchesSearch && matchesStatus;
         });
     }, [depositos, search, statusFilter]);
+
+    console.log(depositos)
 
     const totalPages = Math.ceil(filteredClients.length / PAGE_SIZE);
     const startIndex = (currentPage - 1) * PAGE_SIZE;
@@ -92,8 +94,8 @@ export default function Contratos() {
                     </Box>
                     <Box bgColor="#f2f2f2">
                         <BoxContent>
-                            <BoxTitle>QUANTIDADE TOTAL DE TOKENS</BoxTitle>
-                            <span>{adminData.totalCoinsPlataforma}</span>
+                            <BoxTitle>QUANTIDADE TOTAL DE CONTRATOS</BoxTitle>
+                            <span>{formatCurrencyBRL(parseInt(adminData.totalCoinsPlataforma))}</span>
                         </BoxContent>
                     </Box>
                     <Box bgColor="#f2f2f2">

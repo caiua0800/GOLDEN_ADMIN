@@ -5,6 +5,7 @@ export const TableContainer = styled.div`
   width: 100%;
   max-height: 400px; // Limite de altura
   overflow-y: auto; // Habilitar rolagem vertical
+  position: relative;
 `;
 
 export const Table = styled.table`

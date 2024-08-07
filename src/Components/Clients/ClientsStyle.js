@@ -102,7 +102,7 @@ export const ClientsTable = styled.div`
     max-height: 500px;
     overflow-y: hidden;
     overflow-x: hidden;
-
+    position: relative;
     display: flex;
     justify-content: center;
     @media (max-width: 915px){

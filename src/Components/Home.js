@@ -1,49 +1,81 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import TradingViewWidget from './TeatherGrapth';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchClients } from '../redux/clients/actions'; // Importe a ação fetchClients
+import LoadingWithMessages from './InitialLoad'; // Importe o novo componente de Loading
 
 export default function Home() {
+    const dispatch = useDispatch();
+    const clients = useSelector(state => state.clientsReducer.clients); // Selecionar clientes
+    const loadingClients = useSelector(state => state.clientsReducer.loading);
+    const [firstLoad, setFirstLoad] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const depositos = useSelector((state) => state.DepositosReducer.depositos);
+
+    useEffect(() => {
+        if (firstLoad) {
+            console.log('first Load iniciou');
+            if (clients.length === 0 || depositos.length === 0) { // Verificar se os dados estão carregados
+                setIsLoading(true);
+                dispatch(fetchClients()).finally(() => {
+                    setTimeout(() => {
+                        setIsLoading(false);
+                        setFirstLoad(false);
+                        console.log('first Load finalizou');
+                    }, 10000); // Espera 10 segundos
+                });
+            } else {
+                setFirstLoad(false);
+            }
+        }
+    }, [dispatch, firstLoad, clients]);
+
     return (
         <HomeContainer>
-            <HomeContent>
-                <HomeOptions>
-                    <StyledLink to="/depositos">
-                        <Option color="#FFC300">VALIDAR DEPOSITOS</Option>
-                    </StyledLink>                    
-                    <StyledLink to="/clientes">
-                        <Option color="#219ebc">CLIENTES</Option>
-                    </StyledLink>
-                    <StyledLink to="/usuarios">
-                        <Option color="#FFC300">USUÁRIOS</Option>
-                    </StyledLink>
-                    <StyledLink to="/contratos">
-                        <Option color="#219ebc">CONTRATOS</Option>
-                    </StyledLink>
-                    <StyledLink to="/saques">
-                        <Option color="#FFC300">VALIDAR SAQUES</Option>
-                    </StyledLink>
-                    <StyledLink to="/saquesFeitos">
-                        <Option color="#219ebc">OPERAÇÕES DE SAQUES</Option>
-                    </StyledLink>
-                    <StyledLink to="/validacao">
-                        <Option color="#FFC300">VALIDAÇÃO DE DOCUMENTOS</Option>
-                    </StyledLink>
-                    <StyledLink to="/noticias">
-                        <Option color="#219ebc">NOTÍCIAS</Option>
-                    </StyledLink>
-                    <StyledLink to="/rendimentos">
-                        <Option color="#FFC300">RODAR RENDIMENTO DIÁRIO</Option>
-                    </StyledLink>
-                    <StyledLink to="/funcoes">
-                        <Option color="#FFC300">FUNÇÕES PLATAFORMA</Option>
-                    </StyledLink>
-                </HomeOptions>
+            {firstLoad && isLoading ? (
+                <LoadingWithMessages isLoading={isLoading} />
+            ) : (
+                <HomeContent>
+                    <HomeOptions>
+                        <StyledLink to="/depositos">
+                            <Option color="#FFC300">VALIDAR DEPOSITOS</Option>
+                        </StyledLink>                    
+                        <StyledLink to="/clientes">
+                            <Option color="#219ebc">CLIENTES</Option>
+                        </StyledLink>
+                        <StyledLink to="/usuarios">
+                            <Option color="#FFC300">USUÁRIOS</Option>
+                        </StyledLink>
+                        <StyledLink to="/contratos">
+                            <Option color="#219ebc">CONTRATOS</Option>
+                        </StyledLink>
+                        <StyledLink to="/saques">
+                            <Option color="#FFC300">VALIDAR SAQUES</Option>
+                        </StyledLink>
+                        <StyledLink to="/saquesFeitos">
+                            <Option color="#219ebc">OPERAÇÕES DE SAQUES</Option>
+                        </StyledLink>
+                        <StyledLink to="/validacao">
+                            <Option color="#FFC300">VALIDAÇÃO DE DOCUMENTOS</Option>
+                        </StyledLink>
+                        <StyledLink to="/noticias">
+                            <Option color="#219ebc">NOTÍCIAS</Option>
+                        </StyledLink>
+                        <StyledLink to="/rendimentos">
+                            <Option color="#FFC300">RODAR RENDIMENTO DIÁRIO</Option>
+                        </StyledLink>
+                        <StyledLink to="/funcoes">
+                            <Option color="#FFC300">FUNÇÕES PLATAFORMA</Option>
+                        </StyledLink>
+                    </HomeOptions>
 
-                <GrapthContainer>
-                    <TradingViewWidget />
-                </GrapthContainer>
-            </HomeContent>
+                    <GrapthContainer>
+                        <TradingViewWidget />
+                    </GrapthContainer>
+                </HomeContent>
+            )}
         </HomeContainer>
     );
 }
@@ -77,7 +109,7 @@ const GrapthContainer = styled.div`
     box-sizing: border-box;
     width: 100%;
     height: 600px;
-    overflw: hidden;
+    overflow: hidden;
     display: flex;
     justify-content: center;
 
@@ -85,7 +117,6 @@ const GrapthContainer = styled.div`
         margin-top: 20px;
         padding: 0px;
         height: 450px;
-
     }
 `;
 
