@@ -138,9 +138,7 @@ export default function Depositos() {
                     />
                 </S.SearchBar>
 
-                <S.ReloadData>
-                    <p onClick={handleReload}>RELOAD</p>
-                </S.ReloadData>
+ 
 
                 <S.DepositosTable>
                     <S.TableContainer>
