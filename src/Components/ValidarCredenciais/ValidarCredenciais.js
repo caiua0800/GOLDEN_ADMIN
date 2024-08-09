@@ -5,12 +5,15 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import axios from "axios";
 import Loading from "../Loader";
 import { generateRandomString } from "../ASSETS/assets";
+import { useDispatch } from "react-redux";
+import { updateDepositoSuccess } from "../../redux/actions";
 
 const base_url = process.env.REACT_APP_API_BASE_URL;
 const url_rota_rodar_all_ativos = process.env.REACT_APP_API_RODAR_ALL_ATIVOS;
 const url_rota_edit_saque = process.env.REACT_APP_API_EDITAR_SAQUE;
 const url_rota_edit_ctr = process.env.REACT_APP_API_EDITAR_CONTRATO;
 const url_rota_create_ctr = process.env.REACT_APP_API_CRIAR_CONTRATO;
+const url_rota_add_indication = process.env.REACT_APP_PESQUISAR_CLIENTE_ADICIONAR_SALDO_INDICACAO;
 
 // `${base_url}${url_rota_edit_ctr}`
 
@@ -20,6 +23,7 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
     const [senha, setSenha] = useState('');
     const [aceito, setAceito] = useState(null);
     const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch()
 
     async function verificarLogin(email, senha) {
         setLoading(true);
@@ -112,6 +116,23 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
 
     const updateDeposito = async () => {
         if (await verificarLogin(email, senha)) {
+            console.log(modalData.INDICADOR)
+            if(modalData.INDICADOR != null){
+                const addDataIndication = {
+                    CPF_INDICADOR: modalData.INDICADOR,
+                    CPF_INDICADO: modalData.CLIENT_CPF,
+                    NAME_INDICADO: modalData.CLIENT_NAME,
+                    VALOR_INTEIRO: (modalData.TOTALSPENT)
+                }
+
+                try {
+                    const res = axios.post(`${base_url}${url_rota_add_indication}`,addDataIndication);
+                    console.log(`Resposta ao adicionar indicação: ${res.data}`);
+                } catch (error) {
+                    console.log(`Resposta de erro adicionar indicação: ${error}`);
+                }
+            }
+            
 
             const response = await axios.post(`${base_url}${url_rota_edit_ctr}`, {
                 docId: modalData.CLIENT_CPF,
@@ -119,7 +140,8 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                 fieldName: 'STATUS',
                 fieldNewValue: aceito ? 1 : 3,
             });
-
+            
+            dispatch(updateDepositoSuccess({ ...modalData, STATUS: aceito ? 1 : 3 }));
             if (response.status == 200) {
                 if (aceito)
                     alert("Deposito aceito com sucesso");

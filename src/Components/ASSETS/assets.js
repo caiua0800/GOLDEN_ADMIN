@@ -3,7 +3,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../DATABASE/firebaseConfig';
 import axios from 'axios';
 import { format, toZonedTime } from 'date-fns-tz';
-
+import { parseISO, differenceInYears, differenceInMonths, differenceInDays }from 'date-fns';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const API_GET_CLIENTS = process.env.REACT_APP_API_GET_CLIENTS;
@@ -43,7 +43,6 @@ export const getClients = async (setUsers) => {
         const response = await axios.get(`${API_BASE_URL}${API_GET_CLIENTS}`);
         const userList = response.data;
 
-        console.log(userList)
         setUsers(userList);
     } catch (error) {
         console.error("Error getting clients: ", error);
@@ -173,4 +172,31 @@ export const convertToLocalTime = (dateString) => {
         data: formattedDate,
         hora: formattedTime
     };
+};
+
+export const calcularTempoPassado = (dataString) => {
+
+    const dataFormatada = dataString.replace(' ', 'T');
+    const dataInicial = parseISO(dataFormatada);
+    const dataAtual = new Date();
+    const anosPassados = differenceInYears(dataAtual, dataInicial);
+    const mesesPassados = differenceInMonths(dataAtual, dataInicial) % 12; // Restante dos meses após anos completos
+    const diasPassados = differenceInDays(dataAtual, dataInicial) % 30; // 
+    return {
+        anos: anosPassados,
+        meses: mesesPassados,
+        dias: diasPassados
+    };
+};
+
+export const areDatesEqual = (dateString1, dateString2) => {
+    // Converte a string `dateString1` para o formato YYYY-MM-DD
+    const [datePart] = dateString1.split(' '); // Remove a parte de hora, minuto e segundo se existir
+    const [year, month, day] = datePart.split('-');
+    
+    // Cria uma string no formato YYYY-MM-DD para comparação
+    const formattedDate1 = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    
+    // Compara a data formatada com `dateString2`
+    return formattedDate1 === dateString2;
 };

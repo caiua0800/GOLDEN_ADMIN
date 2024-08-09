@@ -34,9 +34,8 @@ export default function HomeFuncoes() {
                     <H.StyledLink onClick={() => handleChartChange('notPurchased')}>
                         <H.Option color="#fcf300">CADASTRARAM MAS NÃO COMPRARAM</H.Option>
                     </H.StyledLink>
-                    {/* <H.StyledLink onClick={() => handleChartChange('professions')}>
-                        <H.Option color="#5c0099">PROFISSÕES DOS CLIENTES</H.Option>
-                    </H.StyledLink> */}
+
+
                 </H.HomeOptions>
 
                 <H.ChartContainer>

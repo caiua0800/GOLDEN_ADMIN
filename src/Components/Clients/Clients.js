@@ -1,4 +1,3 @@
-// src/Components/Clients/Clients.js
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Style from './ClientsStyle';
@@ -21,6 +20,13 @@ export default function Clientes() {
     useEffect(() => {
         dispatch(fetchClients());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (selectedClient) {
+            const updatedClient = clients.find(client => client.CPF === selectedClient.CPF);
+            setSelectedClient(updatedClient);
+        }
+    }, [clients]); // Dependência em clients para reagir a atualizações
 
     const handleCheckboxChange = () => {
         setHasInvestedMoney(prevState => !prevState); 

@@ -18,11 +18,24 @@ const DepositosReducer = (state = initialState, action) => {
                     if (user.ID === action.payload.userId) {
                         return {
                             ...user,
-                            CONTRATOS: action.payload.updatedContratos,
+                            contratos: user.contratos.map(contrato =>
+                                contrato.IDCOMPRA === action.payload.contratoUpdated.IDCOMPRA
+                                    ? action.payload.contratoUpdated
+                                    : contrato
+                            ),
                         };
                     }
                     return user;
                 }),
+            };
+        case DepositosActionTypes.UPDATE_DEPOSITO:
+            return {
+                ...state,
+                depositos: state.depositos.map(deposito =>
+                    deposito.IDCOMPRA === action.payload.IDCOMPRA
+                        ? { ...deposito, ...action.payload }
+                        : deposito
+                ),
             };
         default:
             return state;

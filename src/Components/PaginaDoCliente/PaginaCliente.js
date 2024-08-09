@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import * as S from './PaginaClienteStyle';
 import axios from "axios";
 import { getClients } from "../ASSETS/assets";
-
+import { fetchClientByCpfAndUpdate } from "../../redux/clients/actions";
+import { useDispatch } from "react-redux";
 const base_url = process.env.REACT_APP_API_BASE_URL
 const rota_url = process.env.REACT_APP_API_UPDATE_MORE_THAN_ONE_INFO
 
 export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
     const [editedData, setEditedData] = useState(clienteData || {});
     const [hasChanges, setHasChanges] = useState(false);
+    const dispatch = useDispatch()
 
     useEffect(() => {
         if (clienteData) {
@@ -35,9 +37,6 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
             return acc;
         }, []);
 
-        // Imprime as alterações
-        console.log('Campos alterados:', changes);
-
         try {
             const response = await axios.post(`${base_url}${rota_url}`, {
                 docId: clienteData.CPF,
@@ -47,7 +46,15 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
             // Verifica o status da resposta
             if (response.status === 200) {
                 alert("Dados alterados com sucesso");
-                getClients(setUsers)
+             
+                dispatch(fetchClientByCpfAndUpdate(clienteData.CPF));
+
+
+                if (setUsers) {
+                    setUsers(prevClients => prevClients.map(client =>
+                        client.CPF === clienteData.CPF ? { ...client, ...editedData } : client
+                    ));
+                }
             } else {
                 console.log("Ocorreu um erro ao alterar os dados: ", response);
             }

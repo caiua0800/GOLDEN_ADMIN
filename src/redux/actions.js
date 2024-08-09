@@ -12,6 +12,7 @@ const API_OBTER_SAQUES = process.env.REACT_APP_API_OBTER_SAQUES;
 const API_EDITAR_CONTRATO = process.env.REACT_APP_API_EDITAR_CONTRATO;
 const API_EDITAR_SAQUE = process.env.REACT_APP_API_EDITAR_SAQUE;
 const API_GET_ADMIN_DATA = process.env.REACT_APP_API_GET_ADMIN_DATA;
+const API_GET_CONTRATO = process.env.REACT_APP_PESQUISAR_CONTRATO;
 
 export const loginUser = (email, password, setLoad) => {
     return async (dispatch) => {
@@ -100,26 +101,35 @@ export const getSaques = () => {
 export const setAceito = (userId, contratoId, aceito) => {
     return async (dispatch) => {
         try {
-            await axios.post(`${API_BASE_URL}${API_EDITAR_CONTRATO}`, {
+            // Atualizar o contrato no backend
+            const response = await axios.post(`${API_BASE_URL}${API_EDITAR_CONTRATO}`, {
                 docId: userId,
                 IDCONTRATO: contratoId,
                 fieldName: "STATUS",
                 fieldNewValue: aceito ? 1 : 3,
             });
 
-            const response = await axios.get(`${API_BASE_URL}${API_OBTER_DEPOSITOS}`);
-            if (response.status === 200) {
-                const updatedContratos = response.data;
+            // Obter o contrato editado
+            const contratoUpdatedResponse = await axios.post(`${API_BASE_URL}${API_GET_CONTRATO}`, {
+                userId,
+                contratoId
+            });
+
+            if (contratoUpdatedResponse.status === 200) {
+                const contratoUpdated = contratoUpdatedResponse.data;
                 dispatch({
                     type: DepositosActionTypes.UPDATE,
-                    payload: { userId, updatedContratos }
+                    payload: { userId, contratoUpdated }
                 });
+            } else {
+                console.error('Erro ao obter contrato atualizado:', contratoUpdatedResponse.status);
             }
         } catch (error) {
-            console.error('Error updating contrato status:', error);
+            console.error('Erro ao atualizar o contrato:', error);
         }
     };
 };
+
 
 export const setAceitoSaques = (userId, saqueId, aceito, dataSolicitacao, methodPayment, obs, valor, fundo_escolhido) => {
     return async (dispatch) => {
@@ -225,3 +235,8 @@ export const consultarALLOWSELL = (dateString) => {
         return false;
     }
 };
+
+export const updateDepositoSuccess = (deposito) => ({
+    type: DepositosActionTypes.UPDATE_DEPOSITO,
+    payload: deposito,
+});

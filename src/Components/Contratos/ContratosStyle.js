@@ -172,6 +172,77 @@ export const FilterDiv = styled.div`
         box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.2);
     }
 
+    .exceptionFilterDiv{
+        width: 100%;
+        display: flex;
+
+        div{
+            display: flex;
+            flex-direction: row;
+        }
+    }
+
+    @media (max-width: 915px){
+        padding: 10px 20px;
+
+        h4{
+            margin-top: 10px;
+            margin: 0;
+        }
+
+        select, input{
+            height: 40px;
+        }
+    }
+`;
+
+
+export const FilterDivException = styled.div`
+    width:100%;   
+    padding: 10px 50px;
+    box-sizing: border-box;
+
+    h4{
+        color: #f2f2f2;
+    }
+
+    div{
+        width: 100%;
+        display: flex;
+        gap: 5px;
+
+        input{
+            width: 100%;
+            height: 30px;
+            border: 0;
+            background-color: #F7F7F7;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: rgba(0,0,0,0.7);
+            padding-left: 20px;
+            box-sizing: border-box;
+            font-size: 16px;
+            box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        button{
+            height: 30px;
+            font-size: 14px;
+            background-color: #fff3;
+            color: white;
+            border-radius: 0;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+
+            &:hover{transform: scale(0.97);}
+        }
+    }
+
+
+
+
     @media (max-width: 915px){
         padding: 10px 20px;
 

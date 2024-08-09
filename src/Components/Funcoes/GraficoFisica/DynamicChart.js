@@ -7,39 +7,43 @@ import './Css.css'; // Certifique-se de que o caminho está correto
 Chart.register(...registerables);
 
 const DynamicChart = () => {
-    // Gerando valores para uma curva quadrática y = x^2
-    const generateQuadraticCurve = (numPoints) => {
-        const xValues = Array.from({ length: numPoints }, (_, i) => i + 1);
-        const yValues = xValues.map(x => x * x); // y = x^2
-        return { xValues, yValues };
-    };
+    const initialData = [
+        { massa: 295.00, tValues: [0.324, 2.304, 4.624, 7.744], yValues: [84.937, 83.169, 81.789, 82.262] },
+        { massa: 391.48, tValues: [0.324, 2.304, 4.624, 7.744], yValues: [96.798, 64.035, 63.577, 63.659] },
+        { massa: 492.53, tValues: [0.324, 2.304, 4.624, 7.744], yValues: [107.843, 51.590, 51.536, 51.291] },
+    ];
 
-    const { xValues: initialXValues, yValues: initialYValues } = generateQuadraticCurve(10);
-
-    const [numXValues, setNumXValues] = useState(initialXValues.length);
-    const [numYValues, setNumYValues] = useState(initialYValues.length);
-    const [xValues, setXValues] = useState(initialXValues);
-    const [yValues, setYValues] = useState(initialYValues);
-    const [chartTitle, setChartTitle] = useState('Curva Quadrática com Linha de Tendência');
-    const [xAxisTitle, setXAxisTitle] = useState('Eixo X');
-    const [yAxisTitle, setYAxisTitle] = useState('Eixo Y');
+    const [selectedDataIndex, setSelectedDataIndex] = useState(0);
+    const [numTValues, setNumTValues] = useState(initialData[0].tValues.length);
+    const [tValues, setTValues] = useState(initialData[0].tValues);
+    const [yValues, setYValues] = useState(initialData[0].yValues);
+    const [chartTitle, setChartTitle] = useState('Gráfico de Posição vs. Tempo²');
+    const [xAxisTitle, setXAxisTitle] = useState('Tempo² (s²)');
+    const [yAxisTitle, setYAxisTitle] = useState('Posição (cm)');
     const [chartData, setChartData] = useState(null);
 
+    const handleDataSelection = (index) => {
+        setSelectedDataIndex(index);
+        setNumTValues(initialData[index].tValues.length);
+        setTValues(initialData[index].tValues);
+        setYValues(initialData[index].yValues);
+    };
+
     const handleGenerateChart = () => {
-        if (xValues.length !== yValues.length) {
-            alert('O número de valores de X e Y deve ser igual.');
+        if (tValues.length !== yValues.length) {
+            alert('O número de valores de T e Y deve ser igual.');
             return;
         }
 
-        const dataPoints = xValues.map((x, i) => [x, yValues[i]]);
+        const dataPoints = tValues.map((t, i) => [t, yValues[i]]);
         const result = regression.linear(dataPoints);
         const { equation } = result;
 
         const data = {
-            labels: xValues,
+            labels: tValues,
             datasets: [
                 {
-                    label: chartTitle,
+                    label: `Carrinho com Massa de ${initialData[selectedDataIndex].massa} g`,
                     data: yValues,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
@@ -47,8 +51,8 @@ const DynamicChart = () => {
                     fill: false,
                 },
                 {
-                    label: 'Linha de Tendência',
-                    data: xValues.map(x => result.predict(x)[1]),
+                    label: `Linha de Tendência: x = ${equation[0].toFixed(2)}t² + ${equation[1].toFixed(2)}`,
+                    data: tValues.map(t => result.predict(t)[1]),
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1,
@@ -71,52 +75,36 @@ const DynamicChart = () => {
     return (
         <div className="dynamic-chart" style={{ padding: '20px', backgroundColor: '#f9f9f9' }}>
             <div className="inputs-section" style={{ marginBottom: '20px' }}>
-                <label>Quantidade de Valores para X:</label>
-                <input
-                    type="number"
-                    value={numXValues}
-                    onChange={(e) => {
-                        const newNumX = parseInt(e.target.value);
-                        setNumXValues(newNumX);
-                        const { xValues: newX, yValues: newY } = generateQuadraticCurve(newNumX);
-                        setXValues(newX);
-                        setYValues(newY);
-                    }}
-                />
-                <label>Quantidade de Valores para Y:</label>
-                <input
-                    type="number"
-                    value={numYValues}
-                    onChange={(e) => {
-                        const newNumY = parseInt(e.target.value);
-                        setNumYValues(newNumY);
-                        const { xValues: newX, yValues: newY } = generateQuadraticCurve(newNumY);
-                        setXValues(newX);
-                        setYValues(newY);
-                    }}
-                />
+                <label>Selecione a Massa:</label>
+                <select onChange={(e) => handleDataSelection(e.target.value)}>
+                    {initialData.map((data, index) => (
+                        <option key={index} value={index}>
+                            {data.massa} g
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div className="values-section" style={{ marginBottom: '20px' }}>
-                <h3>Inserir Valores de X</h3>
-                {Array.from({ length: numXValues }).map((_, index) => (
+                <h3>Valores de T² (s²)</h3>
+                {Array.from({ length: numTValues }).map((_, index) => (
                     <input
                         key={index}
                         type="number"
-                        placeholder={`Valor X ${index + 1}`}
-                        value={xValues[index] || ''}
+                        placeholder={`Valor T² ${index + 1}`}
+                        value={tValues[index] || ''}
                         onChange={(e) => {
-                            const values = [...xValues];
+                            const values = [...tValues];
                             values[index] = parseFloat(e.target.value) || 0;
-                            setXValues(values);
+                            setTValues(values);
                         }}
                     />
                 ))}
             </div>
 
             <div className="values-section" style={{ marginBottom: '20px' }}>
-                <h3>Inserir Valores de Y</h3>
-                {Array.from({ length: numYValues }).map((_, index) => (
+                <h3>Valores de Y (cm)</h3>
+                {Array.from({ length: numTValues }).map((_, index) => (
                     <input
                         key={index}
                         type="number"
@@ -159,7 +147,6 @@ const DynamicChart = () => {
                 <div style={{ marginTop: '20px' }}>
                     <h2>{chartTitle}</h2>
                     <Line data={chartData.data} options={chartData.options} />
-                    <p>Equação da Reta: y = {chartData.data.datasets[1].data[0].toFixed(2)}x + {chartData.data.datasets[1].data[1].toFixed(2)}</p>
                 </div>
             )}
         </div>

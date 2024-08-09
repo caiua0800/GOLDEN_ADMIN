@@ -23,6 +23,13 @@ const clientsReducer = (state = initialState, action) => {
                 loading: false,
                 error: action.payload
             };
+        case 'UPDATE_CLIENT_IN_REDUX':
+            return {
+                ...state,
+                clients: state.clients.map(client =>
+                    client.CPF === action.payload.CPF ? action.payload : client
+                )
+            };
         default:
             return state;
     }

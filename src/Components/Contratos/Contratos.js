@@ -4,15 +4,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getDepositos, getAdminData } from '../../redux/actions';
 import debounce from 'lodash/debounce';
 import Pagination from '../Pagination';
-import { formatDate, formatCurrencyBRL } from "../ASSETS/assets";
-
-const PAGE_SIZE = 10; 
+import { formatDate, formatCurrencyBRL, calcularTempoPassado, areDatesEqual } from "../ASSETS/assets";
+import PaginaContrato from "../PaginaDoContrato/PaginaContrato";
+const PAGE_SIZE = 10;
 
 export default function Contratos() {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [yearFilter, setYearFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [selectedContract, setSelectedContract] = useState(null)
+    const [dateFilter, setDateFilter] = useState(null);
     const dispatch = useDispatch();
     const depositos = useSelector((state) => state.DepositosReducer.depositos);
 
@@ -24,6 +26,7 @@ export default function Contratos() {
     });
 
     useEffect(() => {
+
         const fetchData = async () => {
             try {
                 dispatch(getDepositos());
@@ -50,12 +53,20 @@ export default function Contratos() {
             const matchesStatus = statusFilter === '' ||
                 (statusFilter === 'FINALIZADOS' && user.STATUS === 2) ||
                 (statusFilter === 'VALORIZANDO' && user.STATUS === 1) ||
-                (statusFilter === 'CANCELADOS' && user.STATUS === 3); // Assuming '3' represents 'CANCELADOS'
-            return matchesSearch && matchesStatus;
-        });
-    }, [depositos, search, statusFilter]);
+                (statusFilter === 'CANCELADOS' && user.STATUS === 3);
 
-    console.log(depositos)
+            // Adiciona o filtro de ano
+            const anoContrato = calcularTempoPassado(user.PURCHASEDATE).anos;
+            const matchesYear = yearFilter === '' || anoContrato === parseInt(yearFilter);
+
+            // Filtro de data
+            const matchesDate = dateFilter === null || areDatesEqual(user.PURCHASEDATE, dateFilter);
+
+            return matchesSearch && matchesStatus && matchesYear && matchesDate;
+        });
+    }, [depositos, search, statusFilter, yearFilter, dateFilter]);
+
+
 
     const totalPages = Math.ceil(filteredClients.length / PAGE_SIZE);
     const startIndex = (currentPage - 1) * PAGE_SIZE;
@@ -68,21 +79,25 @@ export default function Contratos() {
     }, 300), []);
 
     const valorGanho = (valorInvestido, lucro_atual) => {
-
         let valorINVESTIDO = (typeof valorInvestido === 'string' ? parseFloat(valorInvestido) : valorInvestido)
-
         let lucroATUAL = 0;
-        if(!lucro_atual)
+        if (!lucro_atual)
             lucroATUAL = 0;
         else
             lucroATUAL = lucro_atual
-
-        return ((lucroATUAL/100) * valorINVESTIDO) 
-
+        return ((lucroATUAL / 100) * valorINVESTIDO)
     }
+
+
+    const handleSelectContract = (contract) => { setSelectedContract(contract) }
+    const handleUnselectContract = () => { setSelectedContract(null) }
+
 
     return (
         <S.ContratosContainer>
+            {selectedContract != null && (
+                <PaginaContrato contratoData={selectedContract} handleClose={handleUnselectContract} />
+            )}
             <S.HomeInitialContent>
                 <S.PartTitle>Painel do Investidor - Modelo de Sistema</S.PartTitle>
                 <S.Boxes>
@@ -120,7 +135,30 @@ export default function Contratos() {
                                 <option value="CANCELADOS">CANCELADOS</option>
                             </select>
                         </S.FilterDiv>
+                        <S.FilterDiv>
+                            <h4>ANOS DE CONTRATO</h4>
+                            <select onChange={(e) => setYearFilter(e.target.value)}>
+                                <option value="">TODOS</option>
+                                <option value="0">Menos de 1 Ano</option>
+                                <option value="1">1 à 2 Anos</option>
+                                <option value="2">2 à 3 Anos</option>
+                                <option value="3">3 à 4 Anos</option>
+                                <option value="4">4 à 5 Anos</option>
+                            </select>
+                        </S.FilterDiv>
+                        <S.FilterDivException className="exceptionFilterDiv">
+                            <h4>POR DATA</h4>
+                            <div>
+                                <input
+                                    type="date"
+                                    onChange={(e) => setDateFilter(e.target.value)}
+                                />
+                                <button onClick={() => setDateFilter(null)}>Limpar</button>
+                            </div>
+
+                        </S.FilterDivException>
                     </S.SearchArea>
+
                     <S.SecondSearchBar>
                         <input
                             type="text"
@@ -142,14 +180,15 @@ export default function Contratos() {
                             <S.TableHeaderCell>QUANTIDADE COINS</S.TableHeaderCell>
                             <S.TableHeaderCell>VALOR UNI.</S.TableHeaderCell>
                             <S.TableHeaderCell>VALOR INVESTIDO</S.TableHeaderCell>
-                            <S.TableHeaderCell>TOTAL LUCRO ATUAL</S.TableHeaderCell>
+                            <S.TableHeaderCell>LUCRO ATUAL (%))</S.TableHeaderCell>
+                            <S.TableHeaderCell>LUCRO ATUAL (U$)</S.TableHeaderCell>
                             <S.TableHeaderCell>FINALIZA EM</S.TableHeaderCell>
                             <S.TableHeaderCell>STATUS</S.TableHeaderCell>
                         </S.TableRow>
                     </S.TableHeader>
                     <S.TableBody>
                         {paginatedClients.map((user, index) => (
-                            <S.TableRow key={index}>
+                            <S.TableRow key={index} onClick={() => { handleSelectContract(user) }}>
                                 <S.TableCell>{user.IDCOMPRA}</S.TableCell>
                                 <S.TableCell>{user.CLIENT_NAME.toUpperCase()}</S.TableCell>
                                 <S.TableCell>{user.CLIENT_CPF}</S.TableCell>
@@ -158,6 +197,7 @@ export default function Contratos() {
                                 <S.TableCell>U$ {user.COINVALUE}</S.TableCell>
                                 <S.TableCell>U$ {user.TOTALSPENT}</S.TableCell>
                                 <S.TableCell>U$ {valorGanho(user.TOTALSPENT, user.RENDIMENTO_ATUAL).toFixed(2)}</S.TableCell>
+                                <S.TableCell>U$ {user.RENDIMENTO_ATUAL ? user.RENDIMENTO_ATUAL.toFixed(2) : '00.00'}%</S.TableCell>
                                 <S.TableCell>{formatDate(user.YIELDTERM)}</S.TableCell>
                                 <S.TableCell>{user.STATUS === 1 ? 'Valorizando' : user.STATUS === 2 ? 'Contrato Finalizado' : 'Cancelado'}</S.TableCell>
                             </S.TableRow>

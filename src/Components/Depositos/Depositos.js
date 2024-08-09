@@ -8,6 +8,7 @@ import * as S from './DepositosStyle';
 const adminIcon = 'https://firebasestorage.googleapis.com/v0/b/golden-token-62a99.appspot.com/o/ICONS%2Fadmin-svgrepo-com.png?alt=media&token=568ef7e2-0166-4002-9042-6461bc3d34eb';
 
 export default function Depositos() {
+    
     const [search, setSearch] = useState('');
     const [clients, setClients] = useState([]);
     const [clientSearch, setClientSearch] = useState('');
@@ -25,7 +26,6 @@ export default function Depositos() {
     const [lucroFinal, setLucroFinal] = useState(150);
     const [type, setType] = useState('DEPOSITO');
 
-
     useEffect(() => {
         dispatch(getDepositos());
         getClients(setClients);
@@ -37,10 +37,8 @@ export default function Depositos() {
 
     const filteredDepositos = depositos.filter(user => user.STATUS === 4)
         .filter(user =>
-            (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
-            (user.NAME && user.NAME.includes(search.toUpperCase())) ||
-            (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase())) ||
-            (user.CPF && user.CPF.includes(search.toUpperCase()))
+            (user.CLIENT_NAME && user.CLIENT_NAME.toUpperCase().includes(search.toUpperCase())) ||
+            (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))
         );
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -59,11 +57,8 @@ export default function Depositos() {
     );
 
 
-    const handleHideModal = () => { setModal(false); }
     const handleShowModal = () => { setModal(true); }
-
     const handlePreviousPage = () => { setCurrentPage(prev => Math.max(prev - 1, 1)); };
-
     const handleNextPage = () => { setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredDepositos.length / itemsPerPage))); };
 
     const handleStatus = (status) => {
@@ -88,19 +83,18 @@ export default function Depositos() {
     }
 
     const handleSelectClient = (client) => {
-        console.log("Cliente selecionado:", client); // Adicione este console.log
+        console.log("Cliente selecionado:", client); 
         setSelectedClient(client);
-        setClientSearch(''); // Limpa a barra de pesquisa de clientes
+        setClientSearch('');
     }
-
 
     const handleSave = () => {
         if (selectedClient) {
             const totalPurchaseValue = parseFloat(coinsQTDE) * parseFloat(valorUni);
-
             const purchaseDetails = {
                 CLIENT_NAME: selectedClient.NAME,
                 CLIENT_CPF: selectedClient.CPF,
+                INDICADOR: (selectedClient.INDICADOR) ?selectedClient.INDICADOR : null,
                 COINS: coinsQTDE,
                 COINVALUE: valorUni,
                 TOTALSPENT: totalPurchaseValue,
@@ -109,8 +103,6 @@ export default function Depositos() {
                 RENDIMENTO_ATUAL: 0,
                 paymentMethod: payMethod
             };
-            console.log('Detalhes da nova compra:', purchaseDetails);
-
             handleOpenValidarModalDEPOSITO(purchaseDetails, 'CRIAR_DEPOSITO');
         } else {
             console.error('Nenhum cliente selecionado.');
@@ -118,13 +110,9 @@ export default function Depositos() {
     };
 
 
-    const handleName = (name1, name2) => {
-        return name1 ? name1 : name2
-    }
+    const handleName = (name1, name2) => {return name1 ? name1 : name2}
+    const handleCPF = (cpf1, cpf2) => {return cpf1 ? formatCPF(cpf1) : formatCPF(cpf2)}
 
-    const handleCPF = (cpf1, cpf2) => {
-        return cpf1 ? formatCPF(cpf1) : formatCPF(cpf2)
-    }
 
     return (
         <S.DepositosContainer>

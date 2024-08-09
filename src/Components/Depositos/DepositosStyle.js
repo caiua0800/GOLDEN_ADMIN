@@ -86,7 +86,7 @@ export const SearchArea = styled.div`
         display: flex;
         flex-direction: column;
         gap: 5px;
-        padding: 0 20px;
+        padding: 0 20px;x
         position: relative;
 
         p {
@@ -101,7 +101,7 @@ export const SearchArea = styled.div`
             box-sizing: border-box;
             font-size: 18px;
             color: rgba(0,0,0,0.7);
-            text-transform: uppercase;
+      
             border-radius: 3px;
             border: 0;
             box-shadow: 2px 1px 4px rgba(0,0,0,0.6);
@@ -291,7 +291,7 @@ export const SearchBar = styled.div`
         box-shadow: 1px 1px 2px black;
         color: rgba(255, 195, 0, 1);
         font-weight: 600;
-        text-transform: uppercase;
+
     }
 
     @media (max-width: 915px){
