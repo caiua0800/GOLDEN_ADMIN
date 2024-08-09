@@ -56,6 +56,10 @@ export const RedefineValorBox = styled.div`
         box-sizing: border-box;
         background-color: #fffdf7;
     }
+
+    @media (max-width: 1000px){
+        flex-direction: column;
+    }
 `;
 
 

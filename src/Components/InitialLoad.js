@@ -35,7 +35,7 @@ const LoadingWrapper = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 99999999;
+  z-index: 99999999999;
 
   &.d-none {
     display: none;

@@ -13,8 +13,8 @@ export const HomeContainer = styled.div`
     box-sizing: border-box;
     flex-direction: column;
 
-    @media (max-width: 915px){
-        padding-left: 30px;
+    @media (max-width: 1000px){
+        padding: 30px 20px;
     }
 `;
 
@@ -92,7 +92,15 @@ export const ChatCentralize = styled.div`
     background-color: #fff; 
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); 
-    width: 70%
+    width: 70%;
+
+    @media (max-width: 1000px){
+        width: 100%;
+        padding: 5px 10px;
+        box-sizing: border-box;
+        overflow-y: scroll;
+    
+    }
 `;
 
 // export const nomenomenome = styled.div``;

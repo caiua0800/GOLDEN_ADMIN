@@ -2,11 +2,27 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
+import styled from 'styled-components';
 
 Chart.register(...registerables);
 
-const base_url = process.env.REACT_APP_API_BASE_URL
-const urlRota = process.env.REACT_APP_API_OBTER_ESTADO
+const base_url = process.env.REACT_APP_API_BASE_URL;
+const urlRota = process.env.REACT_APP_API_OBTER_ESTADO;
+
+const ChartContainer = styled.div`
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+
+    h2 {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 1000px) {
+        padding: 0.5rem;
+    }
+`;
 
 const ClientsByStateChart = () => {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
@@ -42,7 +58,7 @@ const ClientsByStateChart = () => {
     }, []);
 
     return (
-        <div>
+        <ChartContainer>
             <h2>Clientes por Estado</h2>
             <Bar
                 data={chartData}
@@ -52,7 +68,11 @@ const ClientsByStateChart = () => {
                             title: {
                                 display: true,
                                 text: 'Estado'
-                            }
+                            },
+                            ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 10,
+                            },
                         },
                         y: {
                             title: {
@@ -64,7 +84,7 @@ const ClientsByStateChart = () => {
                     }
                 }}
             />
-        </div>
+        </ChartContainer>
     );
 };
 
