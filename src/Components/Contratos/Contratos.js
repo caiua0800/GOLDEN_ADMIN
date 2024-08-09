@@ -151,9 +151,17 @@ export default function Contratos() {
                             <div>
                                 <input
                                     type="date"
-                                    onChange={(e) => setDateFilter(e.target.value)}
+                                    onChange={(e) => {
+                                        setDateFilter(e.target.value);
+                                        setCurrentPage(1);  // Adicione esta linha para voltar à página 1
+                                    }}
                                 />
-                                <button onClick={() => setDateFilter(null)}>Limpar</button>
+                                <button onClick={() => {
+                                    setDateFilter(null);
+                                    setCurrentPage(1);  // Adicione esta linha para voltar à página 1 ao limpar o filtro
+                                }}>
+                                    Limpar
+                                </button>
                             </div>
 
                         </S.FilterDivException>

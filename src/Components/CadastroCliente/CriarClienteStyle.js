@@ -11,7 +11,7 @@ export const CadastroModalBase = styled.div`
     background: linear-gradient(to right, #001D3D, #003566, #001D3D);
     display: flex;
     justify-content: center;
-    z-index: 99999;
+    z-index: 999999999;
 
 `;
 

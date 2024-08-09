@@ -3,13 +3,14 @@ import * as S from './PaginaClienteStyle';
 import axios from "axios";
 import { getClients } from "../ASSETS/assets";
 import { fetchClientByCpfAndUpdate } from "../../redux/clients/actions";
+import Loading from "../Loader";
 import { useDispatch } from "react-redux";
 const base_url = process.env.REACT_APP_API_BASE_URL
 const rota_url = process.env.REACT_APP_API_UPDATE_MORE_THAN_ONE_INFO
-
 export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
     const [editedData, setEditedData] = useState(clienteData || {});
     const [hasChanges, setHasChanges] = useState(false);
+    const [isLoading, setLoading] = useState(false)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -38,6 +39,7 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
         }, []);
 
         try {
+            setLoading(true)
             const response = await axios.post(`${base_url}${rota_url}`, {
                 docId: clienteData.CPF,
                 updates: changes
@@ -55,18 +57,24 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
                         client.CPF === clienteData.CPF ? { ...client, ...editedData } : client
                     ));
                 }
+
             } else {
                 console.log("Ocorreu um erro ao alterar os dados: ", response);
             }
         } catch (error) {
             alert("Houve um erro ao alterar as informações do cliente: " + error.message);
         }
+        setLoading(false)
 
         handleClose();
     };
 
     return (
         <S.PaginaClienteContainer>
+
+            {isLoading && (
+                <Loading load={isLoading} />
+            )}
             <S.PaginaButtons>
                 <S.CloseButton onClick={handleClose}>Fechar</S.CloseButton>
                 {hasChanges && (

@@ -26,7 +26,7 @@ export default function Clientes() {
             const updatedClient = clients.find(client => client.CPF === selectedClient.CPF);
             setSelectedClient(updatedClient);
         }
-    }, [clients]); // Dependência em clients para reagir a atualizações
+    }, [clients]); 
 
     const handleCheckboxChange = () => {
         setHasInvestedMoney(prevState => !prevState); 
@@ -96,7 +96,7 @@ export default function Clientes() {
 
                 <Style.ClientsTable>
                     <Style.TableContainer>
-                        {loading ? (  // Exibir o componente de carregamento
+                        {loading ? (  
                             <Loading load={loading} />
                         ) : (
                             <Style.Table>

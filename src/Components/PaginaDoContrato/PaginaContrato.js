@@ -4,12 +4,13 @@ import axios from "axios";
 import { formatCPFCriarCliente, formatDate } from "../ASSETS/assets";
 import { updateDepositoSuccess } from "../../redux/actions";
 import { useDispatch } from "react-redux";
+import Loading from "../Loader";
 const base_url = process.env.REACT_APP_API_BASE_URL;
 const rota_url = process.env.REACT_APP_API_EDITAR_CONTRATO;
 
 export default function PaginaContrato({ handleClose, contratoData }) {
     const dispatch = useDispatch();
-
+    const [isLoading, setIsLoading] = useState(false)
     const [editedData, setEditedData] = useState({
         CLIENT_NAME: '',
         CLIENT_CPF: '',
@@ -73,7 +74,9 @@ export default function PaginaContrato({ handleClose, contratoData }) {
     };
 
     const handleSave = async () => {
+
         try {
+            setIsLoading(true);
             // Dados do contrato para incluir em cada requisição
             const commonData = {
                 docId: contratoData.CLIENT_CPF, // CPF do cliente como docId
@@ -115,6 +118,8 @@ export default function PaginaContrato({ handleClose, contratoData }) {
         } catch (error) {
             console.error("Erro ao salvar as alterações do contrato:", error);
         }
+        setIsLoading(false);
+
     };
     
 
@@ -122,6 +127,9 @@ export default function PaginaContrato({ handleClose, contratoData }) {
 
     return (
         <S.PaginaContratoContainer>
+            {isLoading && (
+                <Loading load={isLoading} />
+            )}
             <S.PaginaButtons>
                 <S.CloseButton onClick={handleClose}>Fechar</S.CloseButton>
                 {hasChanges && (
