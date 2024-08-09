@@ -296,7 +296,6 @@ export const TableContainer = styled.div`
     margin-top: 40px;
     width: 100%;
     overflow-y: scroll; 
-    overflow-x: scroll; 
     max-height: 400px; 
     box-sizing: border-box;
     display: flex;

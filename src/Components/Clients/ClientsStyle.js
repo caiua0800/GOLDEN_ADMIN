@@ -118,7 +118,6 @@ export const TableContainer = styled.div`
     width: 100%;
     box-sizing: border-box;    
     overflow-y: scroll;
-    overflow-x: scroll;
 `;
 
 export const Table = styled.table`
