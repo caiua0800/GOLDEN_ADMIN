@@ -21,7 +21,7 @@ import SaquesFeitos from './Components/SaquesFeitos';
 import HomeFuncoes from './Components/Funcoes/Home/Home'
 import DynamicChart from './Components/Funcoes/GraficoFisica/DynamicChart';
 import HomeController from './Components/ControladorPlataforma.js/Home';
-
+import { SpeedInsights } from "@vercel/speed-insights/react"
 const NAV_LINKS = [
   { name: "Home", path: "/" },
   { name: "Usuários", path: "/usuarios" },
@@ -52,6 +52,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+      <SpeedInsights />
         {currentUser ? (
           <>
             <SideBar NAV_LINKS={NAV_LINKS} />
