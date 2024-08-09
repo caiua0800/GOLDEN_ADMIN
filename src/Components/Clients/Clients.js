@@ -33,8 +33,8 @@ export default function Clientes() {
     };
 
     const filteredClients = clients.filter(client => {
-        const searchLower = search.toLowerCase();
-        const matchesSearch = client.NAME.toLowerCase().includes(searchLower) || client.CPF.includes(searchLower);
+        const searchUpper = search.toUpperCase();
+        const matchesSearch = client.NAME.toUpperCase().includes(searchUpper) || client.CPF.includes(searchUpper);
         const matchesInvestedMoney = !hasInvestedMoney || client.TOTAL_SPENT > 0; 
         return matchesSearch && matchesInvestedMoney;
     });

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import * as HomeStyle from './HomeStyle'
 import TradingViewWidget from '../TeatherGrapth';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchClients } from '../../redux/clients/actions'; // Importe a ação fetchClients
-import LoadingWithMessages from '../InitialLoad'; // Importe o novo componente de Loading
+import { fetchClients } from '../../redux/clients/actions';
+import LoadingWithMessages from '../InitialLoad'; 
+import { getDepositos } from "../../redux/actions";
 
 export default function Home() {
     const dispatch = useDispatch();
@@ -16,15 +17,17 @@ export default function Home() {
 
     useEffect(() => {
         if (firstLoad) {
-            if (loadingClients || clients.length === 0) { 
-                console.log(`loadingClients: ${loadingClients}`)
+            if (loadingClients || clients.length === 0 || depositos.length === 0) {
                 setIsLoading(true);
-                dispatch(fetchClients()).finally(() => {
-                    setTimeout(() => {
-                        setIsLoading(false);
-                        setFirstLoad(false);
-                    }, 10000); 
+                
+                Promise.all([
+                    dispatch(fetchClients()),
+                    dispatch(getDepositos())
+                ]).finally(() => {
+                    setIsLoading(false);
+                    setFirstLoad(false);
                 });
+
             } else {
                 setFirstLoad(false);
             }
@@ -40,7 +43,7 @@ export default function Home() {
                     <HomeStyle.HomeOptions>
                         <HomeStyle.StyledLink to="/depositos">
                             <HomeStyle.Option color="#FFC300">VALIDAR DEPOSITOS</HomeStyle.Option>
-                        </HomeStyle.StyledLink>                    
+                        </HomeStyle.StyledLink>
                         <HomeStyle.StyledLink to="/clientes">
                             <HomeStyle.Option color="#219ebc">CLIENTES</HomeStyle.Option>
                         </HomeStyle.StyledLink>
