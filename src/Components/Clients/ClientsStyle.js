@@ -9,8 +9,10 @@ export const ClientsContainer = styled.div`
     background: linear-gradient(to right, #001D3D, #003566, #001D3D);
     color: #f2f2f2;
     position: relative;
-    @media (max-width: 915px){
-        padding: 40px 20px;
+
+    @media (max-width: 1000px){
+        padding: 20px 10px;
+        overflow-y: scroll;
     }
 `;
 

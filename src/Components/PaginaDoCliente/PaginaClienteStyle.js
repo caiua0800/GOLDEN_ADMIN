@@ -13,13 +13,15 @@ export const PaginaClienteContainer = styled.div`
     left: 0;
     z-index: 99999;
     overflow-y: scroll;
-    @media (max-width: 915px){
-        padding: 40px 20px;
+    
+    @media (max-width: 1000px){
+        padding: 10px 10px;
     }
 
     h1 {
-        margin-top: 0;
+        margin-top: 40px;
     }
+
 `;
 
 
@@ -52,7 +54,17 @@ export const ClientDataBox = styled.div`
     }
 
     .desabilitado{
-        background-color: rgba(255,255,255,0.7);
+        background-color: rgba(50,255,255,0.7);
+    }
+
+    @media (max-width: 1000px){
+        span{
+            font-size: 16px;
+        }
+
+        input{
+            font-size: 18px;
+        }
     }
 `;
 

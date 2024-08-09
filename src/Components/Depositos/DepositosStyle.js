@@ -58,9 +58,10 @@ export const BoxModal = styled.div`
     height: 100vh;
     padding-bottom: 80px;
     background-color: rgba(255,255,255,0.9);
-    border-radius: 5px;
+    border-radius: 0px;
     box-sizing: border-box;
     overflow-y: scroll;
+
 `;
 
 export const BoxTitle = styled.div`
@@ -76,6 +77,11 @@ export const BoxTitle = styled.div`
         margin: 0;
         text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
+
+    @media (max-width: 1000px){
+        padding: 0px;
+        font-size: 14px;
+    }
 `;
 
 export const SearchArea = styled.div`
@@ -86,7 +92,7 @@ export const SearchArea = styled.div`
         display: flex;
         flex-direction: column;
         gap: 5px;
-        padding: 0 20px;x
+        padding: 0 20px;
         position: relative;
 
         p {
@@ -106,6 +112,10 @@ export const SearchArea = styled.div`
             border: 0;
             box-shadow: 2px 1px 4px rgba(0,0,0,0.6);
         }
+    }
+
+    @media (max-width: 1000px){
+        margin-top: 10px;
     }
 `;
 
@@ -175,6 +185,27 @@ export const RestContentBox = styled.div`
             box-shadow: 2px 2px 5px rgba(0,0,0,0.9);
         }
     }
+
+    @media (max-width: 1000px){
+        margin-top: 10px;
+        gap: 10px;
+
+        div{
+            span{
+                font-size: 16px;
+            }
+
+            input, select{
+                height: 35px;
+                width: 100%;
+                text-align: center;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                font-size: 14px;
+            }
+        }
+    }
 `;
 
 export const ModalButtons = styled.div`
@@ -205,6 +236,8 @@ export const ModalButtons = styled.div`
     .cancelBtn{
         background-color: rgba(255,0,0, 1);
     }
+
+
 `;
 
 export const DepositosContainer = styled.div`
@@ -216,8 +249,10 @@ export const DepositosContainer = styled.div`
     background: linear-gradient(to right, #001D3D, #003566, #001D3D);
     color: #f2f2f2;
     position: relative;
-    @media (max-width: 915px){
-        padding: 40px 20px;
+
+    @media (max-width: 1000px){
+        padding: 20px 10px;
+        overflow-y: scroll;
     } 
 `;
 
@@ -312,8 +347,8 @@ export const DepositosTable = styled.div`
     flex-direction: column;
     display: flex;
     justify-content: center;
-    @media (max-width: 915px){
-        
+
+    @media (max-width: 1000px){
         min-height: 300px;
         padding: 0;
         border: 2px solid rgba(0,0,0,0.2);
@@ -436,6 +471,15 @@ export const ButtonArea = styled.div`
 
     .SaveBtn{
         background-color: green;
+    }
+
+    @media (max-width: 1000px){
+        padding: 10px;
+
+        button{
+            width: 100%;
+            height: 45px;
+        }
     }
 `;
 

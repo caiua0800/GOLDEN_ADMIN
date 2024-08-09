@@ -65,11 +65,14 @@ const SideBarContainer = styled.div`
   display: flex;
   box-sizing: border-box;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: hidden;
+  overflow-x: hidden;
   transition: width 0.3s ease;
   position: relative;
 
   box-shadow: 2px 0px 2px rgba(0,0,0,0.6);
+
+
 `;
 
 const LogoContainer = styled.div`
@@ -80,6 +83,10 @@ const LogoContainer = styled.div`
   justify-content: center;
   box-sizing: border-box;
   align-items: center;
+
+  @media (max-width: 1000px){
+    height: 80px;
+  }
 `;
 
 const LogoText = styled.span`
@@ -103,6 +110,11 @@ const NavItemsContainer = styled.div`
   align-items: center;
   box-sizing: border-box;
   gap: 5px;
+
+  @media(max-width: 1000px){
+    height: 400px;
+    overflow-y: scroll;
+  }
 `;
 
 const NavItem = styled.div`
@@ -115,6 +127,8 @@ const NavItem = styled.div`
   transition: background 0.3s, transform 0.3s;
   cursor: pointer;
   box-sizing: border-box;
+
+
   
 
   a {
@@ -140,16 +154,15 @@ const NavItem = styled.div`
     transform: scale(1.05);
   }
 
-  @media (max-width: 1200px){
-    height: 40px;
-    background: transparent;
-
+  @media (max-width: 1000px){
     a{
-    
-      color: white;
+      height: 50px;
     }
-  
   }
+
+
+
+
 `;
 
 const NavFooter = styled.div`
@@ -167,7 +180,10 @@ const NavFooter = styled.div`
 
   &:hover{
     color: rgba(255, 255, 255, 1);
+  }
 
+  @media (max-width: 1000px){
+    height: 60px;
   }
 `;
 
@@ -186,6 +202,8 @@ const ToggleButton = styled.button`
   align-items: center;
   justify-content: ${({ expanded }) => (expanded ? "center" : "center")};
   padding-left: ${({ expanded }) => (expanded ? "20px" : "0")};
+
+
 `;
 
 const rotateAnimation = keyframes`

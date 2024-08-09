@@ -26,6 +26,13 @@ export const CadastroContainer = styled.div`
     flex-direction: column;
     width: 100%;
     position: relative;
+    
+    @media (max-width: 1000px){
+        height: 100vh;
+        padding: 60px 10px;
+        width: 100%;
+        overflow-y: scroll;
+    }
 `;
 
 export const GetBackButton = styled.button`
@@ -42,6 +49,10 @@ export const GetBackButton = styled.button`
         color: white;
         transform: scale(1.05);
     }
+
+    @media (max-width: 1000px){
+        top: 10px; left: 20px;
+    }
 `;
 
 export const CadastroBox = styled.div`
@@ -49,6 +60,10 @@ export const CadastroBox = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    @media (max-width: 1000px){
+        height: 100%;
+    }
 `;
 
 export const CadastroTitle = styled.h1`
@@ -74,6 +89,10 @@ export const CaixaDeCadastro = styled.div`
     flex-direction: column;
     gap: 20px;
     margin-top: 20px;
+
+    @media (max-width: 1000px){
+        width: 100%;
+    }
 `;
 
 export const CaixaDeInformacao = styled.div`

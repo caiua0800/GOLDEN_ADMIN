@@ -4,8 +4,9 @@ import styled from "styled-components";
 export const FecharModal = styled.div`
     width: 100%;
     display: flex;
-    justify-content: start;
-    padding: 50px;
+    justify-content: end;
+    // padding: 50px;
+    margin-bottom: 30px;
 
     button{
         width: 150px;
@@ -33,6 +34,11 @@ export const ModalContent = styled.div`
     background: linear-gradient(to right, #001D3D, #003566, #001D3D);
     padding: 10px 20px;
     box-sizing: border-box;
+
+    @media  (max-width: 1000px){
+        padding: 30px 10px 50px 10px;
+        overflow-y: scroll;
+    }
 `;
 
 export const ModalTitle = styled.h1`
@@ -127,6 +133,27 @@ export const ClienteInfo = styled.div`
         height: 40px;
         font-size: 18px;
         text-align: center;
+    }
+
+    @media  (max-width: 1000px){
+
+        span{
+            font-size: 16px;
+        }
+
+        input {
+            border: 0;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 2px 2px 1px rgba(0,0,0,0.4);
+            PADDING: 0;
+            height: 40px;
+            font-size: 18px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: CENTER;
+        }
     }
 `;
 

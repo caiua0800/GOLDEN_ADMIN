@@ -99,7 +99,7 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
                     <input
                         className="desabilitado"
                         type="text"
-                        value={`${clienteData.CPF} (não pode ser mudado)`}
+                        value={`${clienteData.CPF} `}
                         readOnly
                     />
                 </S.ClientDataBox>

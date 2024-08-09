@@ -98,9 +98,7 @@ export default function Saques() {
                     />
                 </SearchBar>
 
-                <ReloadData>
-                    <p onClick={handleReload}><img src={reloadIcon} alt="RELOAD" /></p>
-                </ReloadData>
+
 
                 <SaquesTable>
                     <TableContainer>

@@ -174,6 +174,7 @@ const SearchCheck = styled.div`
         align-items: end;
         padding: 0;
         margin-top: 20px;
+        margin-bottom: 20px;
     }
 `;
 
@@ -186,8 +187,10 @@ const SaquesContainer = styled.div`
     background: linear-gradient(to right, #001D3D, #003566, #001D3D);
     color: #f2f2f2;
     position: relative;
+    
     @media (max-width: 915px){
-        padding: 40px 20px;
+        padding: 20px 10px;
+        overflow-y: scroll;
     } 
 `;
 
@@ -199,9 +202,9 @@ const SaquesFirstContent = styled.div`
     box-sizing: border-box;
     align-items: center;
 
-    @media (max-width: 915px){
+    @media (max-width: 1000px){
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
     }
 `;
 
@@ -213,6 +216,10 @@ const AreaTitle = styled.h1`
     
     &:hover {
         color: #ffcc00;
+    }
+
+    @media (max-width: 1000px){
+        font-size: 22px;
     }
 `;
 
@@ -233,15 +240,39 @@ const SearchBar = styled.div`
         border: 1px solid #ccc;
         font-size: 16px;
     }
+
+    @media (max-width: 1000px){
+        margin-bottom: 0;
+
+        input {
+            width: 100%;
+            height: 35px;
+            padding: 0;
+            box-sizing: border-box;
+            padding-left: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+    }
 `;
 
 const SaquesTable = styled.div`
     width: 100%;
     overflow-x: auto;
+
+    @media (max-width: 1000px){
+        overflow-x: scroll;
+        overflow-y: scroll;
+    }
 `;
 
 const TableContainer = styled.div`
     width: 100%;
+    @media (max-width: 1000px){
+        overflow-x: scroll;
+        overflow-y: scroll;
+    }
 `;
 
 const Table = styled.table`

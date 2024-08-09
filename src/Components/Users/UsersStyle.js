@@ -11,6 +11,8 @@ export const ModalAddUser = styled.div`
     justify-content: center;
     align-items: center;
     background-color: rgba(0,0,0,0.6);
+
+
 `;
 
 export const ModalContent = styled.div`
@@ -22,6 +24,13 @@ export const ModalContent = styled.div`
     align-items: center;
     padding: 20px 30px 40px 30px;
     box-sizing: border-box;
+
+    @media(max-width: 1000px){
+        padding: 40px 10px;
+        height: 100vh;
+        width: 100%;
+        overflow-y: scroll;
+    }
 `;
 
 export const ModalTitle = styled.h2`
@@ -99,7 +108,8 @@ export const UsersContainer = styled.div`
     color: #f2f2f2;
     position: relative;
     @media (max-width: 915px){
-        padding: 40px 20px;
+        padding: 40px 10px;
+        overflow-y: scroll;
     }
 `;
 

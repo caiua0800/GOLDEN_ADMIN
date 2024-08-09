@@ -58,9 +58,7 @@ export default function Validacao() {
                         placeholder="Nome do Cliente"
                     />
                 </SearchBar>
-                <ReloadData>
-                    <p onClick={handleReload}><img src={reloadIcon} alt="RELOAD" /></p>
-                </ReloadData>
+
 
                 <ClientsTable>
                     <TableContainer>
