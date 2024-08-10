@@ -123,7 +123,7 @@ export default function SaquesFeitos() {
                                         <TableCell>{formatCPF(user.CLIENT_CPF)}</TableCell>
                                         <TableCell>{user.DATASOLICITACAO}</TableCell>
                                         <TableCell>{user.OBS ? user.OBS : 'Não'}</TableCell>
-                                        <TableCell>$ {user.VALORSOLICITADO}</TableCell>
+                                        <TableCell>U$ {user.VALORSOLICITADO}</TableCell>
                                         <TableCell>{user.FUNDO_ESCOLHIDO ? 'Sim' : 'Não Informado'}</TableCell>
                                         <TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</TableCell>
                                     </TableRow>

@@ -163,7 +163,7 @@ export default function Depositos() {
                                         <S.TableCell>{handleCPF(user.CLIENT_CPF, user.CPF)}</S.TableCell>
                                         <S.TableCell>{user.PURCHASEDATE}</S.TableCell>
                                         <S.TableCell>{user.COINS}</S.TableCell>
-                                        <S.TableCell>$ {(user.TOTALSPENT)}</S.TableCell>
+                                        <S.TableCell>U$ {(user.TOTALSPENT)}</S.TableCell>
                                         <S.TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</S.TableCell>
                                         <S.TableCell>
                                             <S.OptionsButtons>

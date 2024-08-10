@@ -122,8 +122,8 @@ export default function Clientes() {
                                                 <Style.TableCell>{client.EMAIL}</Style.TableCell>
                                                 <Style.TableCell>{client.CONTACT || 'não informado'}</Style.TableCell>
                                                 <Style.TableCell>{client.TOTAL_COINS}</Style.TableCell>
-                                                <Style.TableCell>$ {client.TOTAL_SPENT}</Style.TableCell>
-                                                <Style.TableCell>$ {formatNumber(client.LUCRO_CONTRATOS)}</Style.TableCell>
+                                                <Style.TableCell>U$ {client.TOTAL_SPENT}</Style.TableCell>
+                                                <Style.TableCell>U$ {formatNumber(client.LUCRO_CONTRATOS)}</Style.TableCell>
                                             </Style.TableRow>
                                         ))
                                     ) : (

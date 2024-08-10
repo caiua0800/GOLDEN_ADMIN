@@ -35,7 +35,7 @@ export default function TabelaTopClients() {
                     <H.TableRow key={client.cpf}>
                         <H.TableCell>{client.name}</H.TableCell>
                         <H.TableCell>{client.cpf}</H.TableCell>
-                        <H.TableCell>{client.totalInvestido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</H.TableCell>
+                        <H.TableCell>{client.totalInvestido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$', 'U$')}</H.TableCell>
                     </H.TableRow>
                 ))}
             </H.TableBody>
