@@ -13,7 +13,7 @@ export default function SaquesFeitos() {
     const [filterOption, setFilterOption] = useState('pendentes');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-
+    
     const dispatch = useDispatch();
     const saques = useSelector(state => state.SaquesReducer.saques);
 

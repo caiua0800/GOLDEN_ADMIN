@@ -26,10 +26,17 @@ export default function Depositos() {
     const [lucroFinal, setLucroFinal] = useState(150);
     const [type, setType] = useState('DEPOSITO');
 
-    useEffect(() => {
-        dispatch(getDepositos());
-        getClients(setClients);
-    }, [dispatch]);
+    // useEffect(() => {
+    //     if(depositos.length === 0){
+    //         dispatch(getDepositos());
+    //         console.log('dispachando depositos')
+    //     }
+    //     if(clients.length === 0){
+    //         console.log('dispachando clientes')
+
+    //         getClients(setClients);
+    //     }
+    // }, [dispatch]);
 
     useEffect(() => {
         setCurrentPage(1);

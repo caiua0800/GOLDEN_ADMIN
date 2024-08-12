@@ -17,9 +17,9 @@ export default function Clientes() {
     const [existClient, setExistClient] = useState(false); 
     const [modalCriarCliente, setModalCriarCliente] = useState(false);
 
-    useEffect(() => {
-        dispatch(fetchClients());
-    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(fetchClients());
+    // }, [dispatch]);
 
     useEffect(() => {
         if (selectedClient) {
@@ -35,6 +35,7 @@ export default function Clientes() {
     const filteredClients = clients.filter(client => {
         const searchUpper = search.toUpperCase();
         const matchesSearch = client.NAME.toUpperCase().includes(searchUpper) || client.CPF.includes(searchUpper);
+
         const matchesInvestedMoney = !hasInvestedMoney || client.TOTAL_SPENT > 0; 
         return matchesSearch && matchesInvestedMoney;
     });

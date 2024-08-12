@@ -29,7 +29,7 @@ export default function Contratos() {
 
         const fetchData = async () => {
             try {
-                dispatch(getDepositos());
+                //dispatch(getDepositos());
                 const data = await getAdminData(); // Espera pela Promise
                 setAdminData(data); // Atualiza o estado com os dados retornados
             } catch (error) {

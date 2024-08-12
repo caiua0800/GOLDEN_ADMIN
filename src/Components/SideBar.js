@@ -61,7 +61,7 @@ const SideBarAbsolute = styled.div`
 const SideBarContainer = styled.div`
   background-color: #001D3D;
   width: ${({ expanded }) => (expanded ? "350px" : "0px")};
-  height: calc(100vh - 50px);
+  min-height: calc(100vh - 50px);
   display: flex;
   box-sizing: border-box;
   flex-direction: column;
@@ -71,8 +71,6 @@ const SideBarContainer = styled.div`
   position: relative;
 
   box-shadow: 2px 0px 2px rgba(0,0,0,0.6);
-
-
 `;
 
 const LogoContainer = styled.div`
@@ -84,9 +82,7 @@ const LogoContainer = styled.div`
   box-sizing: border-box;
   align-items: center;
 
-  @media (max-width: 1000px){
-    height: 80px;
-  }
+
 `;
 
 const LogoText = styled.span`
@@ -110,7 +106,9 @@ const NavItemsContainer = styled.div`
   align-items: center;
   box-sizing: border-box;
   gap: 5px;
-
+  overflow-y: scroll;
+  height: 400px;
+  overflow-x: hidden;
   @media(max-width: 1000px){
     height: 400px;
     overflow-y: scroll;
@@ -129,7 +127,6 @@ const NavItem = styled.div`
   box-sizing: border-box;
 
 
-  
 
   a {
     background: #219ebc;
@@ -142,6 +139,7 @@ const NavItem = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+      height: 50px;
 
       &:hover {
         color: rgba(255,255,255,1);

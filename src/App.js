@@ -9,7 +9,7 @@ import Depositos from './Components/Depositos/Depositos';
 import Login from './Components/Login';
 import { useDispatch, useSelector } from 'react-redux';
 import { Provider } from 'react-redux';
-import store from './redux/store'; // Import your Redux store
+import {store} from './redux/store'; // Import your Redux store
 import { useEffect } from 'react';
 import { loginUser } from './redux/actions';
 import SignUpPage from './Components/CreateClient';

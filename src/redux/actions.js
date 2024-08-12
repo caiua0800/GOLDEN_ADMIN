@@ -4,6 +4,7 @@ import { db } from '../DATABASE/firebaseConfig';
 import userActionTypes from './user/action-types';
 import DepositosActionTypes from './Depositos/action-types';
 import SaquesActionTypes from './saques/action-types'; 
+import SaquesPendentesActionTypes from './saques_pendentes/action-types'; 
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -13,6 +14,7 @@ const API_EDITAR_CONTRATO = process.env.REACT_APP_API_EDITAR_CONTRATO;
 const API_EDITAR_SAQUE = process.env.REACT_APP_API_EDITAR_SAQUE;
 const API_GET_ADMIN_DATA = process.env.REACT_APP_API_GET_ADMIN_DATA;
 const API_GET_CONTRATO = process.env.REACT_APP_PESQUISAR_CONTRATO;
+const API_OBTER_SAQUES_PENDENTES = process.env.REACT_APP_API_OBTER_SAQUES_PENDENTES
 
 export const loginUser = (email, password, setLoad) => {
     return async (dispatch) => {
@@ -88,8 +90,28 @@ export const getSaques = () => {
                 throw new Error('Erro ao obter dados dos saques: ' + response.statusText);
             }
             const saques = await response.json();
+            
             dispatch({
                 type: SaquesActionTypes.GET,
+                payload: saques
+            });
+        } catch (error) {
+            console.error('Erro ao obter dados dos saques:', error);
+        }
+    };
+};
+
+export const getSaquesPendentes = () => {
+    return async (dispatch) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}${API_OBTER_SAQUES_PENDENTES}`);
+            if (!response.ok) {
+                throw new Error('Erro ao obter dados dos saques: ' + response.statusText);
+            }
+            const saques = await response.json();
+          
+            dispatch({
+                type: SaquesPendentesActionTypes.GET,
                 payload: saques
             });
         } catch (error) {

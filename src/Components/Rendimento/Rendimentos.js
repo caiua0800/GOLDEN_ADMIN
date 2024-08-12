@@ -25,7 +25,7 @@ export default function Rendimento() {
                         console.log(data.ULTIMO_RENDIMENTO);
                         const { data: formattedDate, hora: formattedTime } = convertToLocalTime(data.ULTIMO_RENDIMENTO);
                         setLastRendimento({ data: formattedDate, hora: formattedTime });
-                        console.lof(lastRendimento)
+                        console.log(lastRendimento)
                     } else {
                         console.log('Nenhum dado encontrado no campo ULTIMO_RENDIMENTO.');
                     }

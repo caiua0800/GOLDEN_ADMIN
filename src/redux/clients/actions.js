@@ -17,13 +17,14 @@ export const fetchClientsFailure = (error) => ({
 
 export const fetchClients = () => {
     return async (dispatch, getState) => {
+
         const { clients } = getState().clients;
 
-        // Verifica se já há clientes no estado
         if (clients.length > 0) {
-            // Se já houver clientes, não faz nova requisição
+            console.log(`Já existem clientes`)
             return;
         }
+        console.log(`Não existem clientes`)
 
         dispatch(fetchClientsRequest());
 

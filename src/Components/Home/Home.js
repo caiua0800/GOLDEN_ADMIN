@@ -17,7 +17,7 @@ export default function Home() {
 
     useEffect(() => {
         if (firstLoad) {
-            if (loadingClients || clients.length === 0 || depositos.length === 0) {
+            if (loadingClients || clients.length === 0) {
                 setIsLoading(true);
                 
                 Promise.all([
