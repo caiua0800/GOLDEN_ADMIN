@@ -6,12 +6,14 @@ export default function LoadingWithMessages({ isLoading }) {
 
   useEffect(() => {
     if (isLoading) {
-      const timer1 = setTimeout(() => setMessage('Puxando os contratos'), 4000);
-      const timer2 = setTimeout(() => setMessage('Carregando Histórico de saques'), 7000);
+      const timer1 = setTimeout(() => setMessage('Carregando todos os Clientes'), 4000);
+      const timer2 = setTimeout(() => setMessage('Carregando todos os Clientes'), 2000);
+      const timer3 = setTimeout(() => setMessage('Carregando Contratos e Depósitos'), 4000);
 
       return () => {
         clearTimeout(timer1);
         clearTimeout(timer2);
+        clearTimeout(timer3);
       };
     }
   }, [isLoading]);

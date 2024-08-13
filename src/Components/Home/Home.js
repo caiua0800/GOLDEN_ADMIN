@@ -4,28 +4,36 @@ import TradingViewWidget from '../TeatherGrapth';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClients } from '../../redux/clients/actions';
 import LoadingWithMessages from '../InitialLoad'; 
-import { getDepositos } from "../../redux/actions";
+import { getDepositos, getSaques } from "../../redux/actions";
 
 export default function Home() {
     const dispatch = useDispatch();
     const clients = useSelector(state => state.clients.clients);
     const loadingClients = useSelector(state => state.clients.loading);
-    const errorClients = useSelector(state => state.clients.error);
     const [firstLoad, setFirstLoad] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const depositos = useSelector((state) => state.DepositosReducer.depositos);
+    const saques = useSelector((state) => state.SaquesReducer.saques);
 
     useEffect(() => {
         if (firstLoad) {
-            if (loadingClients || clients.length === 0) {
+
+            if (loadingClients || clients.length === 0 || saques.length === 0 || depositos.length === 0 ) {
+                console.log(`CLIENTES: ${clients.length}`)
+                console.log(`DEPOSITOSS: ${depositos.length}`)
+                console.log(`SAQUES: ${saques.length}`)
+
                 setIsLoading(true);
                 
                 Promise.all([
                     dispatch(fetchClients()),
-                    dispatch(getDepositos())
+                    dispatch(getDepositos()),
+                    dispatch(getSaques())
                 ]).finally(() => {
-                    setIsLoading(false);
-                    setFirstLoad(false);
+                    setTimeout(() => {
+                        setIsLoading(false);
+                        setFirstLoad(false);
+                    },5000)
                 });
 
             } else {

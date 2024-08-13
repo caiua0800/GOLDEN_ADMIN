@@ -12,7 +12,7 @@ export default function TabelaTopClients() {
     const [topClients, setTopClients] = useState([]);
 
     useEffect(() => {
-        axios.get(`${REACT_APP_API_BASE_URL}${REACT_APP_API_GET_TOP_INVESTORS}`)
+        axios.get(`https://servidor.modelodesoftwae.com/clientes/topInvestors`)
             .then(response => {
                 setTopClients(response.data);
             })

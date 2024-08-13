@@ -69,6 +69,26 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
         handleClose();
     };
 
+    const createWhatsAppLink = (number) => {
+        // Remove espaços, parênteses, hífens e outros caracteres não numéricos
+        const cleanNumber = number.replace(/[^\d]/g, '');
+        // Adiciona o código do país para o Brasil (55)
+        const internationalNumber = '55' + cleanNumber;
+        // Cria o link para o WhatsApp
+        return `https://wa.me/${internationalNumber}`;
+    };
+
+    const handleWhatsAppClick = () => {
+        const contactNumber = editedData.CONTACT;
+        if (contactNumber) {
+            const whatsappLink = createWhatsAppLink(contactNumber);
+            // Abre o link em uma nova aba
+            window.open(whatsappLink, '_blank');
+        } else {
+            alert('Número de contato não disponível.');
+        }
+    };
+
     return (
         <S.PaginaClienteContainer>
 
@@ -129,6 +149,7 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
                         value={editedData.CONTACT || ''}
                         onChange={handleInputChange}
                     />
+                    <h3 onClick={handleWhatsAppClick} style={{ cursor: 'pointer', color: 'blue' }}>Chamar no WhatsApp</h3>
                 </S.ClientDataBox>
                 <S.ClientDataBox>
                     <span>Endereço</span>

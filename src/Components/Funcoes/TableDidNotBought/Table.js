@@ -14,22 +14,23 @@ export default function TabelaNoQuota() {
     const [loading, setLoading] = useState(true); // Novo estado para controle de carregamento
 
     useEffect(() => {
-        axios.get(`${REACT_APP_API_BASE_URL}${REACT_APP_API_GET_DID_NOT_PURCHASED}`)
+        axios.get(`https://servidor.modelodesoftwae.com/clientes/clientsThatDidNotBought`)
             .then(response => {
+                console.log('Dados dos clientes:', response.data); // Adicione este log
                 setTopClients(response.data);
                 setFilteredClients(response.data);
-                setLoading(false); // Dados carregados, ocultar o carregamento
+                setLoading(false);
             })
             .catch(error => {
                 console.error('Erro ao buscar os melhores clientes:', error);
-                setLoading(false); // Ocultar o carregamento em caso de erro também
+                setLoading(false);
             });
     }, []);
 
     useEffect(() => {
         const filtered = topClients.filter(client => 
-            client.NAME.toLowerCase().includes(filter.toLowerCase()) ||
-            (client.CPF).includes(filter)
+            (client.NAME && client.NAME.toLowerCase().includes(filter.toLowerCase())) ||
+            (client.CPF && client.CPF.includes(filter))
         );
         setFilteredClients(filtered);
     }, [filter, topClients]);
@@ -56,7 +57,7 @@ export default function TabelaNoQuota() {
                         filteredClients.map(client => (
                             <H.TableRow key={client.CPF}>
                                 <H.TableCell>{client.NAME}</H.TableCell>
-                                <H.TableCell>{formatCPF(client.CPF)}</H.TableCell>
+                                <H.TableCell>{client.CPF ? formatCPF(client.CPF) : 'CPF Não Informado'}</H.TableCell>
                                 <H.TableCell>{client.CONTACT ? client.CONTACT : 'Não Informado'}</H.TableCell>
                             </H.TableRow>
                         ))

@@ -5,8 +5,8 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-const base_url = process.env.REACT_APP_API_BASE_URL
-const urlRota = process.env.REACT_APP_API_OBTER_CADASTROS
+const base_url = process.env.REACT_APP_API_BASE_URL;
+const urlRota = process.env.REACT_APP_API_OBTER_CADASTROS;
 
 const GrowthChart = () => {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
@@ -15,13 +15,24 @@ const GrowthChart = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(`${base_url}${urlRota}`);
-                const dates = response.data; // Supondo que a resposta é um array de datas no formato "ano-mes-dia hora-minuto-segundo"
-                
+                const dates = response.data;
+                if (!Array.isArray(dates)) {
+                    throw new Error('Resposta da API não é um array');
+                }
+
                 // Função para converter string de data em objeto Date
-                const parseDate = dateStr => new Date(dateStr.replace(' ', 'T'));
+                const parseDate = dateStr => {
+                    if (typeof dateStr === 'string') {
+                        return new Date(dateStr.replace(' ', 'T'));
+                    }
+                    return null;
+                };
 
                 // Ordena as datas da mais antiga para a mais recente
-                const sortedDates = dates.map(parseDate).sort((a, b) => a - b);
+                const sortedDates = dates
+                    .map(parseDate)
+                    .filter(date => date !== null) // Remove datas inválidas
+                    .sort((a, b) => a - b);
 
                 // Agrupa os dados por mês e ano
                 const groupByMonth = dates => {

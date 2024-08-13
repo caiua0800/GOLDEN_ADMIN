@@ -57,6 +57,21 @@ export const ClientDataBox = styled.div`
         background-color: rgba(50,255,255,0.7);
     }
 
+    h3{
+        margin: 0;
+        font-size: 11px;
+        fontt-weight: 500;
+        color: rgba(100, 255, 0, 1);
+        cursor: pointer;
+        transition: .3s;
+
+
+        &:hover{
+            color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.3);
+        }
+    }
+
     @media (max-width: 1000px){
         span{
             font-size: 16px;

@@ -43,7 +43,7 @@ export default function Clientes() {
             });
 
             setUsers(userList);
-            console.log(userList);
+
         } catch (error) {
             console.error("Error getting users:", error);
         }

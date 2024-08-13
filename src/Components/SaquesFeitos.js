@@ -18,10 +18,12 @@ export default function SaquesFeitos() {
     const saques = useSelector(state => state.SaquesReducer.saques);
 
     useEffect(() => {
-        dispatch(getSaques());
+        if(saques.length === 0){
+            dispatch(getSaques());
+            console.log("Nenhum Saque feito")
+        }
     }, [dispatch]);
-
-    // Reset currentPage to 1 when search or filterOption changes
+    
     useEffect(() => {
         setCurrentPage(1);
     }, [search, filterOption]);

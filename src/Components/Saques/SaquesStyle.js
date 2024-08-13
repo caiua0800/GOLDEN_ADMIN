@@ -5,9 +5,10 @@ import styled from "styled-components";
 // Add styled-components for pagination
 export const Pagination = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 10px;
   align-items: center;
-  padding: 10px 0;
+  padding: 10px 30px;
 `;
 
 export const PaginationButton = styled.button`
@@ -16,6 +17,7 @@ export const PaginationButton = styled.button`
   border: none;
   padding: 5px 10px;
   cursor: pointer;
+
   &:disabled {
     cursor: not-allowed;
     opacity: 0.5;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as S from './SaquesStyle';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSaquesPendentes } from '../../redux/actions';
+import { getSaques } from '../../redux/actions';
 import ValidarCredenciais from "../ValidarCredenciais/ValidarCredenciais";
 import ModalNovoSaque from "./ModalNovoSaque";
 
@@ -13,17 +13,20 @@ export default function Saques() {
     const [modalAberto, setModalAberto] = useState(false);
     const [modalData, setModalData] = useState({});
     const [modalNovoSaque, setModalNovoSaque] = useState(false);
-    
+
     const dispatch = useDispatch();
 
-    const saques = useSelector(state => state.SaquesPendentesReducer.saques)
-    useEffect(() => {
-        if(saques.length === 0){
-            dispatch(getSaquesPendentes());
-        }
-        console.log(saques);
-    }, [dispatch]);
+    const saques = useSelector(state => state.SaquesReducer.saques);
 
+    // Estado para paginação
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        if (saques.length === 0) {
+            dispatch(getSaques());
+        }
+    }, [dispatch]);
 
     const handleStatus = (status) => {
         switch (status) {
@@ -43,12 +46,27 @@ export default function Saques() {
     const handleOpenValidarModal = (data) => {
         setModalData(data);
         setModalAberto(true);
-        console.log(data);
     };
 
-    const filteredSaques = saques.filter(saque =>
-        saque.CLIENT_NAME.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredSaques = saques
+        .filter(saque => saque.STATUS === 1) // Filtra apenas os saques pendentes
+        .filter(saque =>
+            saque.CLIENT_NAME.toLowerCase().includes(search.toLowerCase())
+        );
+
+    // Lógica de paginação
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredSaques.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredSaques.length / itemsPerPage);
+
+    const handleNextPage = () => {
+        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    };
+
+    const handlePreviousPage = () => {
+        setCurrentPage((prev) => Math.max(prev - 1, 1));
+    };
 
     return (
         <S.SaquesContainer>
@@ -73,7 +91,10 @@ export default function Saques() {
                 <S.SearchBar>
                     <input
                         value={search}
-                        onChange={e => setSearch(e.target.value)}
+                        onChange={e => {
+                            setSearch(e.target.value);
+                            setCurrentPage(1); // Redefine para a página 1 ao pesquisar
+                        }}
                         type="text"
                         placeholder="FILTRAR"
                     />
@@ -93,7 +114,7 @@ export default function Saques() {
                                 </S.TableRow>
                             </S.TableHeader>
                             <S.TableBody>
-                                {filteredSaques.map((user, index) => (
+                                {currentItems.map((user, index) => (
                                     <S.TableRow key={index}>
                                         <S.TableCell>{user.CLIENT_NAME}</S.TableCell>
                                         <S.TableCell>{user.CLIENT_CPF}</S.TableCell>
@@ -114,6 +135,25 @@ export default function Saques() {
                         </S.Table>
                     </S.TableContainer>
                 </S.SaquesTable>
+
+                {/* Componente de Paginação */}
+                <S.Pagination>
+                    <S.PaginationButton
+                        onClick={handlePreviousPage}
+                        disabled={currentPage === 1}
+                    >
+                        Anterior
+                    </S.PaginationButton>
+                    <S.PaginationInfo>
+                        Página {currentPage} de {totalPages}
+                    </S.PaginationInfo>
+                    <S.PaginationButton
+                        onClick={handleNextPage}
+                        disabled={currentPage === totalPages}
+                    >
+                        Próxima
+                    </S.PaginationButton>
+                </S.Pagination>
             </S.SaquesContent>
         </S.SaquesContainer>
     );
