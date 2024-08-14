@@ -7,6 +7,7 @@ import Loading from "../Loader";
 import { generateRandomString } from "../ASSETS/assets";
 import { useDispatch } from "react-redux";
 import { updateDepositoSuccess } from "../../redux/actions";
+import SaquesActionTypes from "../../redux/saques/action-types";
 
 const base_url = process.env.REACT_APP_API_BASE_URL;
 const url_rota_rodar_all_ativos = process.env.REACT_APP_API_RODAR_ALL_ATIVOS;
@@ -18,7 +19,7 @@ const url_rota_add_indication = process.env.REACT_APP_PESQUISAR_CLIENTE_ADICIONA
 // `${base_url}${url_rota_edit_ctr}`
 
 export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, modalData, type }) {
-    
+
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [aceito, setAceito] = useState(null);
@@ -65,8 +66,8 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
             setMensagemAviso(true);
             try {
                 const response = await axios.get(rota);
-                
-    
+
+
                 if (response.data.failedUpdates && response.data.failedUpdates.length > 0) {
                     alert(`Contratos atualizados com sucesso. Total de documentos atualizados: ${response.data.message}\n\nContratos que falharam:\n${response.data.failedUpdates.map(fail => `Cliente: ${fail.NAME}, CPF: ${fail.CPF}, ID Compra: ${fail.IDCOMPRA}`).join('\n')}`);
                     setLoading(false);
@@ -83,11 +84,11 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
             }
         } else {
             alert("CREDENCIAIS INVÁLIDAS");
-                setMensagemAviso(false);
-                setLoading(false);
+            setMensagemAviso(false);
+            setLoading(false);
         }
     }
-    
+
 
     const updateSaque = async () => {
         if (await verificarLogin(email, senha)) {
@@ -97,14 +98,27 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                 fieldName: 'STATUS',
                 fieldNewValue: aceito ? 2 : 4, // 2 para aceito, 4 para negado
             });
-
-            if (response.status == 200) {
-                if (aceito)
+            console.log("resposta:")
+            console.log(response.data.saque)
+            if (response.data.status == 200) {
+                if (aceito) {
                     alert("Saque aceito com sucesso");
-                else
+
+                    dispatch({
+                        type: SaquesActionTypes.UPDATE_ONE,
+                        payload: {
+                            DATASOLICITACAO: modalData.DATASOLICITACAO, // Identificador único para encontrar o saque
+                            updatedSaque: response.data.saque, // Dados atualizados do saque
+                        },
+                    });
+                }
+                else {
                     alert("Saque negado com sucesso")
+                }
+
+
             } else {
-                alert("Houve um erro ao atualizar o saque");
+                alert("Houve um erro ao atualizar o saque")
             }
             setLoading(false);
             setModalAberto(false);
@@ -117,7 +131,7 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
     const updateDeposito = async () => {
         if (await verificarLogin(email, senha)) {
             console.log(modalData.INDICADOR)
-            if(modalData.INDICADOR != null){
+            if (modalData.INDICADOR != null) {
                 const addDataIndication = {
                     CPF_INDICADOR: modalData.INDICADOR,
                     CPF_INDICADO: modalData.CLIENT_CPF,
@@ -126,13 +140,13 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                 }
 
                 try {
-                    const res = axios.post(`${base_url}${url_rota_add_indication}`,addDataIndication);
+                    const res = axios.post(`${base_url}${url_rota_add_indication}`, addDataIndication);
                     console.log(`Resposta ao adicionar indicação: ${res.data}`);
                 } catch (error) {
                     console.log(`Resposta de erro adicionar indicação: ${error}`);
                 }
             }
-            
+
 
             const response = await axios.post(`${base_url}${url_rota_edit_ctr}`, {
                 docId: modalData.CLIENT_CPF,
@@ -140,7 +154,7 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                 fieldName: 'STATUS',
                 fieldNewValue: aceito ? 1 : 3,
             });
-            
+
             dispatch(updateDepositoSuccess({ ...modalData, STATUS: aceito ? 1 : 3 }));
             if (response.status == 200) {
                 if (aceito)

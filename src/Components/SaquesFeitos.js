@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from 'react-redux';
 import { getSaques } from '../redux/actions';
 import { formatCPF } from "./ASSETS/assets";
+import { addSaque } from "../redux/actions";
 
 const closeIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/cancel-close-delete-svgrepo-com.png?alt=media&token=b0d9ff03-fef7-4eb4-8bae-f6624f1483f2';
 const payIco = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/payment-pay-later-svgrepo-com.png?alt=media&token=13b149d1-cdad-49e3-9e78-e85ca4940274';
@@ -30,7 +31,7 @@ export default function SaquesFeitos() {
 
     const filteredClients = saques.filter(user => {
         const matchesSearch = search.length > 0
-            ? (user.CLIENT_NAME && user.CLIENT_NAME.includes(search.toUpperCase())) ||
+            ? (user.CLIENT_NAME && user.CLIENT_NAME.toUpperCase().includes(search.toUpperCase())) ||
               (user.CLIENT_CPF && user.CLIENT_CPF.includes(search.toUpperCase()))
             : true;
 

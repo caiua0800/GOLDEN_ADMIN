@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as S from './PaginaClienteStyle';
 import axios from "axios";
-import { getClients } from "../ASSETS/assets";
-import { fetchClientByCpfAndUpdate } from "../../redux/clients/actions";
+import { fetchClientByCpfAndUpdate, updateClientInRedux } from "../../redux/clients/actions";
 import Loading from "../Loader";
 import { useDispatch } from "react-redux";
 const base_url = process.env.REACT_APP_API_BASE_URL
@@ -51,6 +50,7 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
              
                 dispatch(fetchClientByCpfAndUpdate(clienteData.CPF));
 
+                dispatch(updateClientInRedux(editedData));
 
                 if (setUsers) {
                     setUsers(prevClients => prevClients.map(client =>

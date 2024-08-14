@@ -6,20 +6,15 @@ import Pagination from '../Pagination';
 import PaginaCliente from '../PaginaDoCliente/PaginaCliente';
 import CadastroPage from '../CadastroCliente/CriarCliente';
 import Loading from '../Loader';
-import { fetchClients } from '../../redux/clients/actions';
+
 
 export default function Clientes() {
-    const dispatch = useDispatch();
     const { clients, loading } = useSelector(state => state.clients);
     const [search, setSearch] = useState('');
     const [hasInvestedMoney, setHasInvestedMoney] = useState(false); 
     const [selectedClient, setSelectedClient] = useState(null); 
-    const [existClient, setExistClient] = useState(false); 
     const [modalCriarCliente, setModalCriarCliente] = useState(false);
 
-    // useEffect(() => {
-    //     dispatch(fetchClients());
-    // }, [dispatch]);
 
     useEffect(() => {
         if (selectedClient) {
@@ -53,13 +48,11 @@ export default function Clientes() {
     const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
 
     const handleSelectClient = (client) => {
-        setExistClient(true);
         setSelectedClient(client);
         console.log('Client selected:', client);
     }
 
     const handleUnselectClient = () => {
-        setExistClient(false);
         setSelectedClient(null);
     } 
 

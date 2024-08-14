@@ -10,7 +10,7 @@ const adminIcon = 'https://firebasestorage.googleapis.com/v0/b/golden-token-62a9
 export default function Depositos() {
     
     const [search, setSearch] = useState('');
-    const [clients, setClients] = useState([]);
+    const clients = useSelector(state => state.clients.clients);
     const [clientSearch, setClientSearch] = useState('');
     const [selectedClient, setSelectedClient] = useState(null);
     const dispatch = useDispatch();
@@ -26,17 +26,7 @@ export default function Depositos() {
     const [lucroFinal, setLucroFinal] = useState(150);
     const [type, setType] = useState('DEPOSITO');
 
-    // useEffect(() => {
-    //     if(depositos.length === 0){
-    //         dispatch(getDepositos());
-    //         console.log('dispachando depositos')
-    //     }
-    //     if(clients.length === 0){
-    //         console.log('dispachando clientes')
 
-    //         getClients(setClients);
-    //     }
-    // }, [dispatch]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -174,7 +164,7 @@ export default function Depositos() {
                                         <S.TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</S.TableCell>
                                         <S.TableCell>
                                             <S.OptionsButtons>
-                                                <img onClick={() => { handleOpenValidarModalDEPOSITO(user, "DEPOSITO") }} src={adminIcon} />
+                                                <img onClick={() => { handleOpenValidarModalDEPOSITO(user, "DEPOSITO") }} src='/user-edit.png' />
                                             </S.OptionsButtons>
                                         </S.TableCell>
                                     </S.TableRow>

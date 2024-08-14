@@ -43,16 +43,18 @@ export const updateClientInRedux = (client) => ({
     payload: client,
 });
 
-// Buscar cliente por CPF e atualizar no estado
+// Buscar cliente por CPF e atualizar no estado 
 export const fetchClientByCpfAndUpdate = (cpf) => {
     return async (dispatch) => {
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_BASE_URL}${process.env.REACT_APP_PESQUISAR_CLIENTE_CPF}`, 
-                { CPF: cpf }  // Corpo da requisição
+                { clientId: cpf }  // Corpo da requisição
             );
+    
             if (response.status === 200) {
-                dispatch(updateClientInRedux(response.data));
+                const updatedClient = response.data;
+                dispatch(updateClientInRedux(updatedClient));
             } else {
                 console.error('Erro ao buscar o cliente atualizado:', response);
             }

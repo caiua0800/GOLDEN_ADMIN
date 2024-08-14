@@ -9,7 +9,7 @@ const clientsReducer = (state = initialState, action) => {
         case 'FETCH_CLIENTS_REQUEST':
             return {
                 ...state,
-                loading: true
+                loading: false
             };
         case 'FETCH_CLIENTS_SUCCESS':
             return {

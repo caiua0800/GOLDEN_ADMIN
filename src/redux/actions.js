@@ -45,6 +45,11 @@ export const logoutUser = () => {
     };
 };
 
+export const addSaque = (novoSaque) => ({
+    type: SaquesActionTypes.ADD,
+    payload: novoSaque,
+});
+
 export const getTotalValorSacado = async () => {
     try {
         const usersCollectionRef = collection(db, 'USERS');
@@ -101,24 +106,7 @@ export const getSaques = () => {
     };
 };
 
-// export const getSaquesPendentes = () => {
-//     return async (dispatch) => {
-//         try {
-//             const response = await fetch(`${API_BASE_URL}${API_OBTER_SAQUES_PENDENTES}`);
-//             if (!response.ok) {
-//                 throw new Error('Erro ao obter dados dos saques: ' + response.statusText);
-//             }
-//             const saques = await response.json();
-          
-//             dispatch({
-//                 type: SaquesPendentesActionTypes.GET,
-//                 payload: saques
-//             });
-//         } catch (error) {
-//             console.error('Erro ao obter dados dos saques:', error);
-//         }
-//     };
-// };
+
 
 export const setAceito = (userId, contratoId, aceito) => {
     return async (dispatch) => {

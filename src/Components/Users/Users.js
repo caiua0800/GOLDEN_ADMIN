@@ -22,9 +22,6 @@ export default function Clientes() {
     const [modalShow, setModalShow] = useState(false);
     const [modalUser, setModalUser] = useState(false);
 
-    const lockedIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/cadeado%20locked.png?alt=media&token=ff38c533-61da-41e6-ad4a-2e0392c4cfa0';
-    const unlockedIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/cadeado%20unlocked.png?alt=media&token=a1f5e8c1-0367-4680-9ebe-97000572e991';
-
     const getUsers = async () => {
         try {
             const querySnapshot = await getDocs(collection(db, 'ADMIN'));
@@ -131,7 +128,8 @@ export default function Clientes() {
                                         <S.TableCell>
                                             <S.OptionsGroup>
                                                 <button>
-                                                    <img src='https://firebasestorage.googleapis.com/v0/b/golden-token-62a99.appspot.com/o/ICONS%2Fadmin-svgrepo-com.png?alt=media&token=568ef7e2-0166-4002-9042-6461bc3d34eb' alt="Alterar permissão" />
+                           
+                                                    <img src='/user-edit.png' alt="Alterar permissão" />
                                                 </button>
                                             </S.OptionsGroup>
                                         </S.TableCell>
