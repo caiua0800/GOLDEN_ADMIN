@@ -129,20 +129,37 @@ export const SaquesTable = styled.div`
     background: linear-gradient(to right, #003566, #001D3D , #003566); 
     box-sizing: border-box;
     padding: 0 30px 0 30px;
-    margin-top: 30px;
     min-height: 300px;
     max-height: 500px;
-    overflow-y: hidden;
-    overflow-x: hidden;
+    overflow: auto;
     flex-direction: column;
     display: flex;
     justify-content: center;
-    @media (max-width: 915px){
-        
+
+    @media (max-width: 1000px){
         min-height: 300px;
         padding: 0;
         border: 2px solid rgba(0,0,0,0.2);
         max-height: 250px;
+    }
+`;
+
+export const AtualizarData = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    span{
+        font-weight: 500;
+        color: white;
+        transition: .3s;
+        cursor: pointer;
+        margin-bottom: 5px;
+
+
+        &:hover{
+            color: rgba(255, 255, 255, 0.5);
+        }
     }
 `;
 
@@ -200,7 +217,6 @@ export const TableCell = styled.td`
 
 export const OptionsButtons = styled.div`
 
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -213,5 +229,18 @@ export const OptionsButtons = styled.div`
         &:hover{
             transform: scale(1.3);
         }
+    }
+`;
+
+export const AccountInfo = styled.div`
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+
+    span{
+        text-align: CENTER;
+        font-size: 12px;
+        font-weight: 500;
+        color: white;
     }
 `;

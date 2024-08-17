@@ -221,12 +221,14 @@ export const getAdminData = async () => {
             totalSaldoPlataforma: response.data.totalSaldoPlataforma,
             totalDeGanhosPlataforma: response.data.totalDeGanhosPlataforma,
             totalDeValoresDeSaquesFeitos: response.data.totalDeValoresDeSaquesFeitos,
+            totalSaldoGolden: response.data.totalSaldoGolden,
         };
     } catch (error) {
         console.error('Error fetching admin data:', error);
         return {
             totalCoinsPlataforma: 0,
             totalSaldoPlataforma: 0,
+            totalSaldoGolden: 0,
             totalDeGanhosPlataforma: 0,
             totalDeValoresDeSaquesFeitos: 0,
             error: 'Failed to fetch admin data',

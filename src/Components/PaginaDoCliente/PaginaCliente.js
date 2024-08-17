@@ -6,7 +6,8 @@ import Loading from "../Loader";
 import { useDispatch } from "react-redux";
 const base_url = process.env.REACT_APP_API_BASE_URL
 const rota_url = process.env.REACT_APP_API_UPDATE_MORE_THAN_ONE_INFO
-export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
+
+export default function PaginaCliente({ setSelectedClient, clienteData, handleClose, setUsers }) {
     const [editedData, setEditedData] = useState(clienteData || {});
     const [hasChanges, setHasChanges] = useState(false);
     const [isLoading, setLoading] = useState(false)
@@ -47,9 +48,9 @@ export default function PaginaCliente({ clienteData, handleClose, setUsers }) {
             // Verifica o status da resposta
             if (response.status === 200) {
                 alert("Dados alterados com sucesso");
-             
+                setSelectedClient(null)
                 dispatch(fetchClientByCpfAndUpdate(clienteData.CPF));
-
+                setHasChanges(false)
                 dispatch(updateClientInRedux(editedData));
 
                 if (setUsers) {

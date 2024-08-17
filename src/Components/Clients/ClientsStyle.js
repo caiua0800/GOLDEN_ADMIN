@@ -30,6 +30,8 @@ export const ClientFirstContent = styled.div`
     }
 `;
 
+
+
 export const AreaTitle = styled.h1`
     text-shadow: 1px 1px 2px rgba(255,255,255,0.2);
     cursor: pointer;
@@ -106,6 +108,7 @@ export const ClientsTable = styled.div`
     overflow-x: hidden;
     position: relative;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     @media (max-width: 915px){
         
@@ -120,6 +123,25 @@ export const TableContainer = styled.div`
     width: 100%;
     box-sizing: border-box;    
     overflow-y: scroll;
+`;
+
+export const AtualizarData = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    span{
+        font-weight: 500;
+        color: white;
+        transition: .3s;
+        cursor: pointer;
+        margin-bottom: 5px;
+
+
+        &:hover{
+            color: rgba(255, 255, 255, 0.5);
+        }
+    }
 `;
 
 export const Table = styled.table`

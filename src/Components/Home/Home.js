@@ -17,16 +17,10 @@ export default function Home() {
 
     useEffect(() => {
         if (firstLoad) {
-
             if (loadingClients || clients.length === 0 || saques.length === 0 || depositos.length === 0 ) {
-                console.log(`CLIENTES: ${clients.length}`)
-                console.log(`DEPOSITOSS: ${depositos.length}`)
-                console.log(`SAQUES: ${saques.length}`)
-
                 setIsLoading(true);
-                
                 Promise.all([
-                    dispatch(fetchClients()),
+                    dispatch(fetchClients('novo')),
                     dispatch(getDepositos()),
                     dispatch(getSaques())
                 ]).finally(() => {
@@ -78,6 +72,9 @@ export default function Home() {
                         </HomeStyle.StyledLink>
                         <HomeStyle.StyledLink to="/funcoes">
                             <HomeStyle.Option color="#FFC300">FUNÇÕES PLATAFORMA</HomeStyle.Option>
+                        </HomeStyle.StyledLink>
+                        <HomeStyle.StyledLink to="/mensagem">
+                            <HomeStyle.Option color="#FFC300">MENSAGENS</HomeStyle.Option>
                         </HomeStyle.StyledLink>
                     </HomeStyle.HomeOptions>
 

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Style from './ClientsStyle';
-import { formatCPF, formatDate, formatNumber } from '../ASSETS/assets';
+import { formatCPF, formatDate, formatNumber, getClients } from '../ASSETS/assets';
 import Pagination from '../Pagination'; 
 import PaginaCliente from '../PaginaDoCliente/PaginaCliente';
 import CadastroPage from '../CadastroCliente/CriarCliente';
 import Loading from '../Loader';
+import { fetchClients } from '../../redux/clients/actions';
+import { getDepositos, getSaques } from '../../redux/actions';
 
 
 export default function Clientes() {
@@ -14,6 +16,7 @@ export default function Clientes() {
     const [hasInvestedMoney, setHasInvestedMoney] = useState(false); 
     const [selectedClient, setSelectedClient] = useState(null); 
     const [modalCriarCliente, setModalCriarCliente] = useState(false);
+    const dispatch = useDispatch();
 
 
     useEffect(() => {
@@ -60,12 +63,19 @@ export default function Clientes() {
         setModalCriarCliente(true);
     }
 
+    const handleReload = async () => {
+        await dispatch(fetchClients('recarregar'))
+        await dispatch(getSaques())
+        await dispatch(getDepositos())
+        
+    }
+
     return (
         <Style.ClientsContainer>
             {modalCriarCliente && (
                 <CadastroPage setModalCriarCliente={setModalCriarCliente} />
             )}
-            <PaginaCliente handleClose={handleUnselectClient} clienteData={selectedClient} />
+            <PaginaCliente setSelectedClient={setSelectedClient} handleClose={handleUnselectClient} clienteData={selectedClient} />
             <Style.ClientFirstContent>
                 <Style.AreaTitle>CLIENTES</Style.AreaTitle>
                 <Style.AddClient onClick={handleModalCriarClienteOpen}>+ ADICIONAR CLIENTE</Style.AddClient>
@@ -89,6 +99,7 @@ export default function Clientes() {
                 </Style.FiltrarClienteInvestido>
 
                 <Style.ClientsTable>
+                    <Style.AtualizarData><span onClick={handleReload}>ATUALIZAR</span></Style.AtualizarData>
                     <Style.TableContainer>
                         {loading ? (  
                             <Loading load={loading} />

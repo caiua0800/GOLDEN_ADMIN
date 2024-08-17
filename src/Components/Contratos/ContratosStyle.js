@@ -27,6 +27,26 @@ export const HomeInitialContent = styled.div`
     position: relative;
 `;
 
+export const AtualizarData = styled.div`
+    width: 100%;
+    display: flex;
+    padding-right: 20px;
+    justify-content: end;
+
+    span{
+        font-weight: 500;
+        color: white;
+        transition: .3s;
+        cursor: pointer;
+        margin-bottom: 5px;
+
+
+        &:hover{
+            color: rgba(255, 255, 255, 0.5);
+        }
+    }
+`;
+
 export const PartTitle = styled.div`
     color: #FFC300;
     font-weight: 600;
@@ -295,15 +315,15 @@ export const SecondSearchBar = styled.div`
 export const TableContainer = styled.div`
     margin-top: 40px;
     width: 100%;
-    overflow-y: scroll; 
+    overflow:auto;
     max-height: 400px; 
     box-sizing: border-box;
     display: flex;
     box-shadow: 6px 6px 5px rgba(0,0,0,0.6);
-    
+    flex-direction: column;
+
     @media (max-width: 915px){
         margin-top: 150px;
-        overflow-x: scroll; 
         border: 2px solid rgba(0,0,0,0.1);
         padding: 0;
         border-radius: 12px;
@@ -361,3 +381,4 @@ export const TableCell = styled.td`
         transform: scale(1.1);
     }
 `;
+

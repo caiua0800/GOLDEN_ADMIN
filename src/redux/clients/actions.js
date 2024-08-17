@@ -15,22 +15,25 @@ export const fetchClientsFailure = (error) => ({
     payload: error,
 });
 
-export const fetchClients = () => {
+export const fetchClients = (tipo) => {
     return async (dispatch, getState) => {
 
         const { clients } = getState().clients;
 
-        if (clients.length > 0) {
+        if (clients.length > 0 && tipo === 'novo') {
             console.log(`Já existem clientes`)
             return;
         }
-        console.log(`Não existem clientes`)
-
+        if(tipo === 'recarregar'){
+            console.log('RECARREGANDO')
+        }
         dispatch(fetchClientsRequest());
 
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}${process.env.REACT_APP_API_GET_CLIENTS}`);
             dispatch(fetchClientsSuccess(response.data));
+            console.log("Clientes Atualizados")
+            
         } catch (error) {
             dispatch(fetchClientsFailure(error.message));
         }

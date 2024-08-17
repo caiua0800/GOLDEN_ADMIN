@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import * as S from './SaquesStyle';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSaques } from '../../redux/actions';
+import { getDepositos, getSaques } from '../../redux/actions';
 import ValidarCredenciais from "../ValidarCredenciais/ValidarCredenciais";
 import ModalNovoSaque from "./ModalNovoSaque";
+import { fetchClients } from "../../redux/clients/actions";
+import { formatCPF } from "../ASSETS/assets";
 
-const payIco = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/payment-pay-later-svgrepo-com.png?alt=media&token=13b149d1-cdad-49e3-9e78-e85ca4940274';
-const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e';
 
 export default function Saques() {
     const [search, setSearch] = useState('');
@@ -54,6 +54,8 @@ export default function Saques() {
             saque.CLIENT_NAME.toLowerCase().includes(search.toLowerCase())
         );
 
+        console.log(filteredSaques)
+
     // Lógica de paginação
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -67,6 +69,23 @@ export default function Saques() {
     const handlePreviousPage = () => {
         setCurrentPage((prev) => Math.max(prev - 1, 1));
     };
+
+    const handleReload = async () => {
+        await dispatch(getSaques());
+        await dispatch(fetchClients('recarregar'));
+        await dispatch(getDepositos());
+    }
+
+    const handleAccount = (user) => {
+        return (
+            <S.AccountInfo>
+                <span>AGÊNCIA: {user.CLIENT_AGENCY? user.CLIENT_AGENCY : 'sem agência'}</span>
+                <span>CONTA: {user.CLIENT_ACCOUNT? user.CLIENT_ACCOUNT : 'sem conta'}</span>
+                <span>TIPO: {user.CLIENT_ACCOUNTTYPE? user.CLIENT_ACCOUNTTYPE : 'sem definição'}</span>
+                <span>PIX: {user.CLIENT_KEYPIX? formatCPF(user.CLIENT_KEYPIX) : 'sem pix'}</span>
+            </S.AccountInfo>
+        )
+    }
 
     return (
         <S.SaquesContainer>
@@ -101,6 +120,7 @@ export default function Saques() {
                 </S.SearchBar>
 
                 <S.SaquesTable>
+                    <S.AtualizarData onClick={handleReload}><span>ATUALIZAR</span></S.AtualizarData>
                     <S.TableContainer>
                         <S.Table>
                             <S.TableHeader>
@@ -109,6 +129,7 @@ export default function Saques() {
                                     <S.TableHeaderCell>CPF</S.TableHeaderCell>
                                     <S.TableHeaderCell>DATA SOLICITAÇÃO</S.TableHeaderCell>
                                     <S.TableHeaderCell>VALOR</S.TableHeaderCell>
+                                    <S.TableHeaderCell>CONTA</S.TableHeaderCell>
                                     <S.TableHeaderCell>APROVADO</S.TableHeaderCell>
                                     <S.TableHeaderCell>OPÇÕES</S.TableHeaderCell>
                                 </S.TableRow>
@@ -120,12 +141,13 @@ export default function Saques() {
                                         <S.TableCell>{user.CLIENT_CPF}</S.TableCell>
                                         <S.TableCell>{user.DATASOLICITACAO}</S.TableCell>
                                         <S.TableCell>$ {user.VALORSOLICITADO}</S.TableCell>
+                                        <S.TableCell>{handleAccount(user)}</S.TableCell>
                                         <S.TableCell>{handleStatus(user.STATUS)}</S.TableCell>
                                         <S.TableCell>
                                             <S.OptionsButtons>
                                                 <img
                                                     onClick={() => { handleOpenValidarModal(user) }}
-                                                    src={payIco} alt="payIco"
+                                                    src='pay-ico-saque.png' alt="payIco"
                                                 />
                                             </S.OptionsButtons>
                                         </S.TableCell>

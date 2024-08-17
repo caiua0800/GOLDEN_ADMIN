@@ -22,6 +22,10 @@ import HomeFuncoes from './Components/Funcoes/Home/Home'
 import DynamicChart from './Components/Funcoes/GraficoFisica/DynamicChart';
 import HomeController from './Components/ControladorPlataforma.js/Home';
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { getDepositos, getSaques } from './redux/actions';
+import { fetchClients } from './redux/clients/actions';
+import CriarMensagem from './Components/CriarMensagem/CriarMensagem';
+
 const NAV_LINKS = [
   { name: "Home", path: "/" },
   { name: "Usuários", path: "/usuarios" },
@@ -32,6 +36,7 @@ const NAV_LINKS = [
   { name: "Saques Feitos", path: "/saquesFeitos" },
   { name: "Validação Doc.", path: "/validacao" },
   { name: "Notícias", path: "/noticias" },
+  { name: "Mensagens", path: "/mensagem" },
   { name: "Rendimentos", path: "/rendimentos" },
   { name: "Controlador", path: "/controller" },
   { name: "Funções", path: "/funcoes" }
@@ -47,6 +52,12 @@ function App() {
       dispatch(loginUser(storedUser.EMAIL, storedUser.PASS));
     }
   }, [currentUser, dispatch]);
+
+  setInterval(() => {
+    dispatch(fetchClients())
+    dispatch(getDepositos())
+    dispatch(getSaques())
+  }, 1200000);
 
 
   return (
@@ -69,6 +80,7 @@ function App() {
               <Route path="/validacao" element={<Validacao />} />
               <Route path="/rendimentos" element={<Rendimento />} />
               <Route path="/saquesFeitos" element={<SaquesFeitos />} />
+              <Route path="/mensagem" element={<CriarMensagem />} />
               <Route path="/funcoes" element={<HomeFuncoes />} />
               <Route path="/fisica" element={<DynamicChart />} />
               <Route path="/controller" element={<HomeController />} />

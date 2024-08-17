@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import * as S from './ContratosStyle'
 import { useDispatch, useSelector } from 'react-redux';
-import { getDepositos, getAdminData } from '../../redux/actions';
+import { getDepositos, getAdminData, getSaques } from '../../redux/actions';
 import debounce from 'lodash/debounce';
 import Pagination from '../Pagination';
+import axios from "axios";
 import { formatDate, formatCurrencyBRL, calcularTempoPassado, areDatesEqual } from "../ASSETS/assets";
 import PaginaContrato from "../PaginaDoContrato/PaginaContrato";
+import { fetchClients } from "../../redux/clients/actions";
 const PAGE_SIZE = 10;
 
 export default function Contratos() {
@@ -18,32 +20,43 @@ export default function Contratos() {
     const dispatch = useDispatch();
     const depositos = useSelector((state) => state.DepositosReducer.depositos);
 
+
     const [adminData, setAdminData] = useState({
         totalCoinsPlataforma: 0,
         totalSaldoPlataforma: '0,00',
         totalDeGanhosPlataforma: '0,00',
+        totalSaldoGolden: '0,00',
         error: ''
     });
 
-    useEffect(() => {
 
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
-                //dispatch(getDepositos());
-                const data = await getAdminData(); // Espera pela Promise
-                setAdminData(data); // Atualiza o estado com os dados retornados
+                const data = await getAdminData();
+           
+                setAdminData({
+                    totalCoinsPlataforma: data.totalCoinsPlataforma || 0,
+                    totalSaldoPlataforma: data.totalSaldoPlataforma || 0,
+                    totalDeGanhosPlataforma: data.totalDeGanhosPlataforma || 0,
+                    totalSaldoGolden: data.totalSaldoGolden || 0, // Certifique-se de que a propriedade existe
+                    error: data.error || ''
+                });
             } catch (error) {
                 console.error('Failed to fetch admin data:', error);
                 setAdminData({
                     totalCoinsPlataforma: 0,
-                    totalSaldoPlataforma: '0,00',
-                    totalDeGanhosPlataforma: '0,00',
+                    totalSaldoPlataforma: 0,
+                    totalDeGanhosPlataforma: 0,
+                    totalSaldoGolden: 0,
                     error: 'Failed to fetch admin data'
                 });
             }
         };
         fetchData();
     }, [dispatch]);
+    
 
     const filteredClients = useMemo(() => {
         return depositos.filter(user => {
@@ -54,17 +67,21 @@ export default function Contratos() {
                 (statusFilter === 'FINALIZADOS' && user.STATUS === 2) ||
                 (statusFilter === 'VALORIZANDO' && user.STATUS === 1) ||
                 (statusFilter === 'CANCELADOS' && user.STATUS === 3);
-
+    
             // Adiciona o filtro de ano
             const anoContrato = calcularTempoPassado(user.PURCHASEDATE).anos;
             const matchesYear = yearFilter === '' || anoContrato === parseInt(yearFilter);
-
+    
             // Filtro de data
             const matchesDate = dateFilter === null || areDatesEqual(user.PURCHASEDATE, dateFilter);
-
-            return matchesSearch && matchesStatus && matchesYear && matchesDate;
+    
+            // Filtro para não exibir contratos com STATUS igual a 4
+            const statusNotFour = user.STATUS !== 4;
+    
+            return matchesSearch && matchesStatus && matchesYear && matchesDate && statusNotFour;
         });
     }, [depositos, search, statusFilter, yearFilter, dateFilter]);
+    
 
 
 
@@ -88,10 +105,30 @@ export default function Contratos() {
         return ((lucroATUAL / 100) * valorINVESTIDO)
     }
 
-
+   
     const handleSelectContract = (contract) => { setSelectedContract(contract) }
     const handleUnselectContract = () => { setSelectedContract(null) }
 
+    const handleReload = async () => {
+        await dispatch(fetchClients('recarregar'));
+        await dispatch(getSaques());
+        await dispatch(getDepositos());
+    }
+
+    const handleStatus = (status) => {
+        switch (status) {
+            case 1:
+                return 'VALORIZANDO';
+            case 2:
+                return 'Finalizado';
+            case 3:
+                return 'Cancelado';
+            case 4:
+                return 'Pendente';
+            default:
+                return 'Indefinido';
+        }
+    }
 
     return (
         <S.ContratosContainer>
@@ -104,7 +141,7 @@ export default function Contratos() {
                     <S.Box bgColor="#f2f2f2">
                         <S.BoxContent>
                             <S.BoxTitle>VALOR TOTAL</S.BoxTitle>
-                            <span>U$ {formatCurrencyBRL(adminData.totalSaldoPlataforma)}</span>
+                            <span>U$ {formatCurrencyBRL(adminData.totalSaldoGolden ? adminData.totalSaldoGolden : 0)}</span>
                         </S.BoxContent>
                     </S.Box>
                     <S.Box bgColor="#f2f2f2">
@@ -176,8 +213,9 @@ export default function Contratos() {
                     </S.SecondSearchBar>
                 </S.SearchAreaContent>
             </S.Contracts>
-
+            <S.AtualizarData onClick={handleReload}><span>ATUALIZAR</span></S.AtualizarData>
             <S.TableContainer>
+                
                 <S.Table>
                     <S.TableHeader>
                         <S.TableRow>
@@ -207,7 +245,7 @@ export default function Contratos() {
                                 <S.TableCell>U$ {valorGanho(user.TOTALSPENT, user.RENDIMENTO_ATUAL).toFixed(2)}</S.TableCell>
                                 <S.TableCell>U$ {user.RENDIMENTO_ATUAL ? user.RENDIMENTO_ATUAL.toFixed(2) : '00.00'}%</S.TableCell>
                                 <S.TableCell>{formatDate(user.YIELDTERM)}</S.TableCell>
-                                <S.TableCell>{user.STATUS === 1 ? 'Valorizando' : user.STATUS === 2 ? 'Contrato Finalizado' : 'Cancelado'}</S.TableCell>
+                                <S.TableCell>{handleStatus(user.STATUS)}</S.TableCell>
                             </S.TableRow>
                         ))}
                     </S.TableBody>

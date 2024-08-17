@@ -5,7 +5,6 @@ import { formatCPF, formatNumber, getClients } from "../ASSETS/assets";
 import ValidarCredenciais from "../ValidarCredenciais/ValidarCredenciais";
 import * as S from './DepositosStyle';
 
-const adminIcon = 'https://firebasestorage.googleapis.com/v0/b/golden-token-62a99.appspot.com/o/ICONS%2Fadmin-svgrepo-com.png?alt=media&token=568ef7e2-0166-4002-9042-6461bc3d34eb';
 
 export default function Depositos() {
     
@@ -42,9 +41,11 @@ export default function Depositos() {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredDepositos.slice(indexOfFirstItem, indexOfLastItem);
 
-    const handleReload = () => {
-        dispatch(getDepositos());
+
+    const handleReload = async () => {
+        await dispatch(getDepositos());
     };
+
 
     const filteredClients = clients.filter(client =>
         (client.NAME && client.NAME.toUpperCase().includes(clientSearch.toUpperCase())) ||
@@ -57,6 +58,7 @@ export default function Depositos() {
     const handleShowModal = () => { setModal(true); }
     const handlePreviousPage = () => { setCurrentPage(prev => Math.max(prev - 1, 1)); };
     const handleNextPage = () => { setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredDepositos.length / itemsPerPage))); };
+
 
     const handleStatus = (status) => {
         switch (status) {
@@ -164,7 +166,7 @@ export default function Depositos() {
                                         <S.TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</S.TableCell>
                                         <S.TableCell>
                                             <S.OptionsButtons>
-                                                <img onClick={() => { handleOpenValidarModalDEPOSITO(user, "DEPOSITO") }} src='/user-edit.png' />
+                                                <img onClick={() => { handleOpenValidarModalDEPOSITO(user, "DEPOSITO") }} src='user-edit.png' />
                                             </S.OptionsButtons>
                                         </S.TableCell>
                                     </S.TableRow>
