@@ -12,7 +12,7 @@ export default function MensagemSchema({ data, handleClick, onDoubleClick }) {
     return (
         <S.MensagemVerBox 
             onClick={() => handleClick && handleClick(data)} 
-            onDoubleClick={onDoubleClick} 
+            onDoubleClick={() => onDoubleClick && onDoubleClick()} 
             messageType={data.messageType}
         >
             <span>x</span>

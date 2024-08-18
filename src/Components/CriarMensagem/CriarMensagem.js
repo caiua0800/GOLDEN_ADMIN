@@ -4,11 +4,13 @@ import * as S from './CriarMensagemStyle';
 import MensagemBox from "./Componentes/MensagemBox";
 import VerMensagens from "./Componentes/VerMensagens";
 import EnviarMensagem from "./Componentes/EnviarMensagem";
+import Envios from "./Componentes/Envios";
 
 export default function CriarMensagem() {
     const [isModalOpenCriar, setIsModalOpenCriar] = useState(false);
     const [isModalOpenVer, setIsModalOpenVer] = useState(false);
     const [isModalOpenEnviar, setIsModalOpenEnviar] = useState(false);
+    const [isModalOpenVerEnvios, setIsModalOpenVerEnvios] = useState(false);
 
     const handleOpenModal = (funct) => {
         funct(true);
@@ -32,7 +34,7 @@ export default function CriarMensagem() {
                 <button className="bt1" onClick={() => {handleOpenModal(setIsModalOpenCriar)}}>CRIAR NOVA MENSAGEM</button>
                 <button className="bt2" onClick={() => {handleOpenModal(setIsModalOpenVer)}}>VER MENSAGENS</button>
                 <button className="bt3" onClick={() => {handleOpenModal(setIsModalOpenEnviar)}}>ENVIAR MENSAGEM</button>
-                <button className="bt4">ENVIOS</button>
+                <button className="bt4"  onClick={() => {handleOpenModal(setIsModalOpenVerEnvios)}}>ENVIOS</button>
             </S.CreateMessageButton>
 
             {isModalOpenCriar && <MensagemBox onClose={() => {handleCloseModal(setIsModalOpenCriar)}} />}
@@ -40,6 +42,9 @@ export default function CriarMensagem() {
             {isModalOpenVer && <VerMensagens onClose={() => {handleCloseModal(setIsModalOpenVer)}} />}
 
             {isModalOpenEnviar && <EnviarMensagem onClose={() => {handleCloseModal(setIsModalOpenEnviar)}} />}
+
+            {isModalOpenVerEnvios && <Envios onClose={() => {handleCloseModal(setIsModalOpenVerEnvios)}} />}
+        
         </S.CriarMensagemContainer>
     );
 }

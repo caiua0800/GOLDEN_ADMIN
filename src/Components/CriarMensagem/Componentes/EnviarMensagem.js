@@ -11,7 +11,7 @@ export default function EnviarMensagem({ onClose }) {
     const [clientesSelecionados, setClientesSelecionados] = useState('');
     const [filteredClients, setFilteredClients] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCPFs, setSelectedCPFs] = useState([]);
+    const [selectedCPFs, setSelectedCPFs] = useState([]); // Inicia como um array de objetos
 
     const { clients } = useSelector(state => state.clients);
 
@@ -48,12 +48,20 @@ export default function EnviarMensagem({ onClose }) {
 
     useEffect(() => {
         if (clientesSelecionados === "ENVIAR PARA TODOS") {
-            setSelectedCPFs(clients.map(client => client.CPF));
+            // Cria um objeto para o envio para todos
+            setSelectedCPFs([{ NAME: "TODOS", CPF: "*" }]);
         } else {
-            const selectedCPFs = clients
-                .filter(client => clientesSelecionados.split('; ').includes(client.NAME))
-                .map(client => client.CPF);
-            setSelectedCPFs(selectedCPFs);
+            const selectedClients = clients.filter(client =>
+                clientesSelecionados.split('; ').includes(client.NAME)
+            );
+
+            // Atualiza selectedCPFs com objetos contendo NAME e CPF
+            const updatedCPFs = selectedClients.map(client => ({
+                NAME: client.NAME,
+                CPF: client.CPF
+            }));
+
+            setSelectedCPFs(updatedCPFs);
         }
     }, [clientesSelecionados, clients]);
 
@@ -76,20 +84,24 @@ export default function EnviarMensagem({ onClose }) {
 
             if (clientesSelecionados === "ENVIAR PARA TODOS") {
                 setClientesSelecionados(client.NAME);
-                setSelectedCPFs([client.CPF]);
+                setSelectedCPFs([{ NAME: client.NAME, CPF: client.CPF }]);
             } else if (isSelected) {
                 setClientesSelecionados(prevState => 
                     prevState.split('; ').filter(name => name !== client.NAME).join('; ')
                 );
+
+                // Remove CPF correspondente
                 setSelectedCPFs(prevState => 
-                    prevState.filter(cpf => cpf !== client.CPF)
+                    prevState.filter(c => c.CPF !== client.CPF)
                 );
             } else {
                 setClientesSelecionados(prevState => 
                     prevState ? `${prevState}; ${client.NAME}` : client.NAME
                 );
+
+                // Adiciona novo cliente ao array
                 setSelectedCPFs(prevState => 
-                    [...prevState, client.CPF]
+                    [...prevState, { NAME: client.NAME, CPF: client.CPF }]
                 );
             }
         }
@@ -104,15 +116,15 @@ export default function EnviarMensagem({ onClose }) {
     
         try {
             // Verifique se selectedCPFs é um array e não está vazio
-            if (!Array.isArray(selectedCPFs)) {
-                console.error("selectedCPFs não é um array.");
+            if (!Array.isArray(selectedCPFs) || selectedCPFs.length === 0) {
+                console.error("selectedCPFs não é um array ou está vazio.");
                 return;
             }
     
             const messageRef = doc(db, "MENSAGENS", selectedMessage.id);
     
             await updateDoc(messageRef, {
-                ENVIAR_PARA: selectedCPFs
+                ENVIAR_PARA: selectedCPFs // O array de objetos com NAME e CPF
             });
             console.log("Mensagens enviadas com sucesso.");
     
@@ -178,7 +190,7 @@ export default function EnviarMensagem({ onClose }) {
                                     onClick={() => handleSelectClient(client)}
                                     style={{
                                         cursor: 'pointer',
-                                        textDecoration: selectedCPFs.includes(client.CPF) ? 'underline' : 'none'
+                                        textDecoration: selectedCPFs.some(cpfObj => cpfObj.CPF === client.CPF) ? 'underline' : 'none'
                                     }}
                                 >
                                     <span>{client.NAME} - {client.CPF}</span>
