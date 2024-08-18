@@ -3,56 +3,30 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - main  # Ou a branch que você usa para deploy
+      - main  # Ou a branch que você está usando para deploy
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'  # Ou a versão do Node.js que você usa
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'  # Atualize para Node.js 20
 
-      - name: Install dependencies
-        run: npm install
+    - name: Install dependencies
+      run: npm install
 
-      - name: Build project
-        run: npm run build
+    - name: Build
+      run: npm run build
 
-      - name: Deploy to Firebase
-        uses: wzieba/Firebase-Hosting-Action@v2
-        with:
-          firebase_token: ${{ secrets.FIREBASE_AUTH_TOKEN }}
-name: Deploy to Firebase Hosting
-
-on:
-  push:
-    branches:
-      - main  # Ou a branch que você usa para deploy
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'  # Ou a versão do Node.js que você usa
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build
-
-      - name: Deploy to Firebase
-        uses: wzieba/Firebase-Hosting-Action@v2
-        with:
-          firebase_token: ${{ secrets.FIREBASE_AUTH_TOKEN }}
+    - name: Deploy
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: ${{ secrets.GITHUB_TOKEN }}
+        firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        channelId: live  # ou a URL do canal se for um canal de pré-visualização
