@@ -2,15 +2,19 @@ import React, { useState, useEffect } from "react";
 import * as S from './PaginaContratoStyle';
 import axios from "axios";
 import { formatCPFCriarCliente, formatDate } from "../ASSETS/assets";
-import { updateDepositoSuccess } from "../../redux/actions";
+import { getDepositos, updateDepositoSuccess } from "../../redux/actions";
 import { useDispatch } from "react-redux";
 import Loading from "../Loader";
+
 const base_url = process.env.REACT_APP_API_BASE_URL;
 const rota_url = process.env.REACT_APP_API_EDITAR_CONTRATO;
+const rota_cancelar = process.env.REACT_APP_CANCELAR_CONTRATO;
 
 export default function PaginaContrato({ handleClose, contratoData }) {
     const dispatch = useDispatch();
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
+    const [cancelInput, setCancelInput] = useState('');
+
     const [editedData, setEditedData] = useState({
         CLIENT_NAME: '',
         CLIENT_CPF: '',
@@ -24,7 +28,6 @@ export default function PaginaContrato({ handleClose, contratoData }) {
         STATUS: '',
         MAXIMUMQUOTAYIELD: ''
     });
-
     const [hasChanges, setHasChanges] = useState(false);
 
     useEffect(() => {
@@ -58,13 +61,13 @@ export default function PaginaContrato({ handleClose, contratoData }) {
         Object.keys(editedData).forEach(key => {
             const originalValue = contratoData[key];
             const editedValue = editedData[key];
-    
+
             if (key === 'RENDIMENTO_ATUAL' || key === 'MAXIMUMQUOTAYIELD') {
                 if (originalValue !== editedValue) {
-                    if(key === 'RENDIMENTO_ATUAL'){
+                    if (key === 'RENDIMENTO_ATUAL') {
                         changes[key] = parseFloat(editedValue);
 
-                    }else{
+                    } else {
                         changes[key] = editedValue;
                     }
                 }
@@ -82,14 +85,14 @@ export default function PaginaContrato({ handleClose, contratoData }) {
                 docId: contratoData.CLIENT_CPF, // CPF do cliente como docId
                 IDCONTRATO: contratoData.IDCOMPRA // ID do contrato
             };
-    
+
             // Dados para a alteração do campo MAXIMUMQUOTAYIELD
             const maximumQuotaYieldData = {
                 ...commonData,
                 fieldName: 'MAXIMUMQUOTAYIELD',
                 fieldNewValue: editedData.MAXIMUMQUOTAYIELD
             };
-    
+
             // Dados para a alteração do campo RENDIMENTO_ATUAL
             const rendimentoAtualData = {
                 ...commonData,
@@ -97,12 +100,12 @@ export default function PaginaContrato({ handleClose, contratoData }) {
                 fieldNewValue: parseFloat(editedData.RENDIMENTO_ATUAL)
             };
 
-            
-    
+
+
             const res1 = await axios.post(`${base_url}${rota_url}`, maximumQuotaYieldData)
             const res2 = await axios.post(`${base_url}${rota_url}`, rendimentoAtualData)
 
-            if(res1 && res2){
+            if (res1 && res2) {
                 console.log(res1.data)
                 console.log(res2.data)
 
@@ -121,7 +124,32 @@ export default function PaginaContrato({ handleClose, contratoData }) {
         setIsLoading(false);
 
     };
-    
+
+    const handleCancelContrato = async ( ) => {
+
+        if(cancelInput != "SIM"){
+            alert("Para cancelar, digite SIM");
+            return;
+        }
+
+        try {
+            const response = axios.post(`${base_url}${rota_cancelar}`, {
+                userId: contratoData.CLIENT_CPF,
+                contractId: contratoData.IDCOMPRA
+            })
+
+            if((await response).data.status === 200){
+                alert("CONTRATO CANCELADO!")
+                handleClose();
+                dispatch(getDepositos());
+            }else{
+                alert("ERRO AO CANCELAR O CONTRATO");
+            }
+        } catch (error) {
+            alert(`ERRO: ${error}`);
+        }
+    }
+
 
     if (!contratoData) return null;
 
@@ -238,6 +266,15 @@ export default function PaginaContrato({ handleClose, contratoData }) {
                         onChange={handleInputChange} // Editável
                     />
                 </S.ContratoDataBox>
+
+                <S.CancelContract>
+                    <span>DESEJA CANCELAR O CONTRATO?</span>
+                    <div>
+                        <input onChange={(e) => setCancelInput(e.target.value)} value={cancelInput} type="text" placeholder="Digite SIM para confirmar o cancelamento" />
+                        <button onClick={handleCancelContrato}>CANCELAR</button>
+                    </div>
+
+                </S.CancelContract>
             </S.ContratoDataContainer>
         </S.PaginaContratoContainer>
     );

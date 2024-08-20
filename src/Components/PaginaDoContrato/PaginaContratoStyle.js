@@ -28,6 +28,7 @@ export const ContratoDataContainer = styled.div`
     width: 100%;
     display: flex;
     flex-direction: column;
+    overflow: auto;
     gap: 20px;
     margin-top: 40px;
 `;
@@ -106,7 +107,43 @@ export const SaveButton = styled.button`
         color: #FFC300;
     }
 `;
-// export const nome = styled.div``;
+
+export const CancelContract = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 40px;
+
+    span{
+        font-size: 22px;
+    }
+
+    div{
+        display: flex;
+        width: 100%;
+
+        input{
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            box-sizing: border-box;
+            height: 40px;
+        }
+
+        button{
+            background-color: rgba(240, 30, 20, 1);
+            height: 40px;
+            border-radius: 0;
+            cursor: pointer;
+            transition: .3s;
+
+            &:hover{
+                backgound-color: rgba(0,0,0,1);
+            }
+        }
+    }
+`;
 
 // export const nome = styled.div``;
 

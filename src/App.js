@@ -25,6 +25,8 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 import { getDepositos, getSaques } from './redux/actions';
 import { fetchClients } from './redux/clients/actions';
 import CriarMensagem from './Components/CriarMensagem/CriarMensagem';
+import Indicacao from './Components/Indicacao/Indicacao';
+import AnteciparLucro from './Components/AnteciparLucro/AnteciparLucro';
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -33,7 +35,8 @@ const NAV_LINKS = [
   { name: "Contratos", path: "/contratos" },
   { name: "Validar Depósitos", path: "/depositos" },
   { name: "Validar Saques", path: "/saques" },
-  { name: "Saques Feitos", path: "/saquesFeitos" },
+  { name: "Saques", path: "/saquesFeitos" },
+  { name: "Indicação", path: "/indicacao" },
   { name: "Validação Doc.", path: "/validacao" },
   { name: "Notícias", path: "/noticias" },
   { name: "Mensagens", path: "/mensagem" },
@@ -77,6 +80,8 @@ function App() {
               <Route path="/noticias" element={<CreateNews />} />
               <Route path="/criarcliente" element={<SignUpPage />} />
               <Route path="/saques" element={<Saques />} />
+              <Route path="/indicacao" element={<Indicacao />} />
+              <Route path="anteciparLucro" element={<AnteciparLucro />} />
               <Route path="/validacao" element={<Validacao />} />
               <Route path="/rendimentos" element={<Rendimento />} />
               <Route path="/saquesFeitos" element={<SaquesFeitos />} />
