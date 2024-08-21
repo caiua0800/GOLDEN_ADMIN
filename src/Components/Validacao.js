@@ -4,27 +4,26 @@ import { formatCPF, getClients, formatNumber } from "./ASSETS/assets";
 import "firebase/compat/storage";
 import "firebase/compat/firestore";
 import Modal from "./ModalDocumentos/Modal";
+import { useSelector } from "react-redux";
 
 
 const reloadIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/reload-svgrepo-com%20(1).png?alt=media&token=c99468e4-47db-4616-8788-540ef032113e'
 
 export default function Validacao() {
-    const [users, setUsers] = useState([]);
+    const clients = useSelector(state => state.clients.clients);
     const [search, setSearch] = useState("");
     const [selectedUser, setSelecetedUser] = useState(null);
     const [showModalDocs, setShowModalDocs] = useState(true);
 
-    useEffect(() => {
-        getClients(setUsers);
-    }, []);
 
-    const filteredClients = search.length > 0
-        ? users.filter(user => (user.NAME.toUpperCase().includes(search.toUpperCase()) && (!user.DOCSVERIFICADOS && user.DOCSENVIADOS)))
-        : users.filter(user => !user.DOCSVERIFICADOS && user.DOCSENVIADOS);
 
-    const handleReload = () => {
-        getClients(setUsers);
-    };
+    const filteredClients = Array.isArray(clients) && search.length > 0
+    ? clients.filter(user => (user.NAME.toUpperCase().includes(search.toUpperCase()) && (!user.DOCSVERIFICADOS && user.DOCSENVIADOS)))
+    : Array.isArray(clients) 
+    ? clients.filter(user => !user.DOCSVERIFICADOS && user.DOCSENVIADOS)
+    : []; // Isso garante que você não tente filtrar uma variável inválida
+
+
 
     const handleShowModal = (usuario) => {
         setSelecetedUser(usuario);
@@ -35,7 +34,6 @@ export default function Validacao() {
     const handleCloseModal = () => {
         setSelecetedUser(null);
         setShowModalDocs(false);
-        handleReload()
     }
 
     return (

@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import * as M from './ModalStyle';
 import axios from "axios";
 import Loading from "../Loader";
+import { useDispatch } from "react-redux";
+import { getClients } from "../ASSETS/assets";
+import { fetchClients } from "../../redux/clients/actions";
+
 
 
 const base_url = process.env.REACT_APP_API_BASE_URL;
@@ -10,11 +14,12 @@ const rota_url = process.env.REACT_APP_API_VAL_UPDATE;
 export default function Modal({ cliente, handleCloseModal }) {
 
     const [load, setLoad] = useState(false);
+    const dispatch = useDispatch();
 
     if (cliente === null) return null;
 
 
-    const handleSetValidacao = (DOCSENVIADOS, DOCSVERIFICADOS) => {
+    const handleSetValidacao = async (DOCSENVIADOS, DOCSVERIFICADOS) => {
         setLoad(true);
         const sendData = {
             docId: cliente.CPF,
@@ -23,7 +28,7 @@ export default function Modal({ cliente, handleCloseModal }) {
         }
 
         try {
-            const response = axios.post(`${base_url}${rota_url}`, sendData)
+            const response = await axios.post(`${base_url}${rota_url}`, sendData)
 
             alert("Cliente atualizado com sucesso!");
 
@@ -31,6 +36,8 @@ export default function Modal({ cliente, handleCloseModal }) {
                 handleCloseModal();
                 setLoad(false);
             },1000)
+
+            await dispatch(fetchClients())
 
         } catch (error) {
             setLoad(false);

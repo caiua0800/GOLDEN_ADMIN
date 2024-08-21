@@ -23,7 +23,7 @@ export const ContainerTitle = styled.h1`
 `;
 
 export const StatusMessage = styled.p`
-    text-align: center;
+    text-align: center ;
     font-size: 1.2rem;
     color: #333;
     margin: 10px 0;
@@ -36,6 +36,7 @@ export const RedefineValorBox = styled.div`
     margin-top: 40px;
     gap: 5px;
     align-items: center;
+    flex-direction: column;
 
     h3{
         margin: 0;
@@ -70,9 +71,10 @@ export const RedefineValorButton = styled.div`
     justify-content: center;
     margin-top: 20px;
 
+
     button{
         width: 200px;
-        height: 30px;
+        height: 40px;
         font-size: 14px;
         color: rgba(0,0,0,0.8);
         transition: .3s;
@@ -83,9 +85,69 @@ export const RedefineValorButton = styled.div`
         justify-content: center;
         box-sizing: border-box;
         font-weight: 600;
-
+        padding: 5px 5px;
         &:hover{
             transform: scale(0.97);
         }
     }
 `;
+
+export const ContainerDivisor = styled.div`
+    width: 100%;
+    overflow: auto;
+    align-items: center;
+    display: flex;
+    gap: 80px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+`;
+
+export const UniContratoValue = styled.div`
+    border-radius: 20px;
+    background-color: rgba(100, 255, 199, 0.2);
+    padding: 20px;
+    box-shadow: 3px 3px 2px rgba(0,0,0,0.4);
+`;
+
+export const BoxTitle = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    span{
+        margin: 0;
+        font-size: 26px;
+        font-weight: 500;
+    }
+`;
+
+export const ValorPadraoMeses = styled.div`
+    border-radius: 20px;
+    background-color: rgba(100, 255, 199, 0.2);
+    padding: 20px;
+    box-shadow: 3px 3px 2px rgba(0,0,0,0.4);
+
+`;
+
+export const RendimentoPadraoBox = styled.div`
+    border-radius: 20px;
+    background-color: rgba(100, 255, 199, 0.2);
+    padding: 20px;
+    box-shadow: 3px 3px 2px rgba(0,0,0,0.4);
+
+`;
+
+export const DolarPadraoBox = styled.div`
+    border-radius: 20px;
+    background-color: rgba(100, 255, 199, 0.2);
+    padding: 20px;
+    box-shadow: 3px 3px 2px rgba(0,0,0,0.4);
+
+`;
+
+// export const ContainerDivisor = styled.div``;
+
+// export const ContainerDivisor = styled.div``;

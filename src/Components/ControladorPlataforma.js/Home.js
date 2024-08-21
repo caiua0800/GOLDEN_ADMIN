@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as H from './HomeStyle';
 import JanelaSaque from "./Controllers/JanelaDeSaque/JanelaSaque";
 import ValorUnidadeContrato from "./Controllers/ValorUniContrato/ValorUniContrato";
+import Gateway from "./Controllers/Gateway/Gateway";
 
 export default function HomeController() {
     const [selectedOption, setSelectedOption] = useState(''); // Estado para gerenciar o componente ativo
@@ -16,6 +17,8 @@ export default function HomeController() {
                 return <JanelaSaque />;
             case 'VALOR_UNIDADE_CONTRATO':
                 return <ValorUnidadeContrato />;
+            case 'GATEWAY':
+                return <Gateway />
             default:
                 return null;
         }
@@ -31,7 +34,10 @@ export default function HomeController() {
                         <H.Option color="#1e96fc">JANELA DE SAQUES</H.Option>
                     </H.StyledLink>
                     <H.StyledLink onClick={() => handleOptionClick('VALOR_UNIDADE_CONTRATO')}>
-                        <H.Option color="#fcf300">VALOR UNIDADE CONTRATO</H.Option>
+                        <H.Option color="#fcf300">CONFIGURAÇÕES DE CONTRATO</H.Option>
+                    </H.StyledLink>
+                    <H.StyledLink onClick={() => handleOptionClick('GATEWAY')}>
+                        <H.Option color="#1e96fc">GATEWAY DE PAGAMENTO</H.Option>
                     </H.StyledLink>
                 </H.HomeOptions>
 

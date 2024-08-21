@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchClients } from '../../redux/clients/actions';
 import LoadingWithMessages from '../InitialLoad';
 import { getDepositos, getSaques } from "../../redux/actions";
+import axios from "axios";
+
+
 
 export default function Home() {
     const dispatch = useDispatch();
@@ -43,6 +46,42 @@ export default function Home() {
             fetchData();
         }
     }, [dispatch, firstLoad, clients.length, saques.length, depositos.length]);
+
+
+    const exportClientsToJson = () => {
+        const dataStr = JSON.stringify(clients, null, 2); // Converte o array de clientes para JSON
+        const blob = new Blob([dataStr], { type: "application/json" }); // Cria um blob com esse JSON
+        const url = URL.createObjectURL(blob); // Cria um URL para o blob
+
+        // Cria um link para download e simula o clique no link
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "banco_de_dados_golden.json"; // Nome do arquivo
+        document.body.appendChild(a); // Para FF
+        a.click(); // Simula o clique
+        a.remove(); // Remove o elemento
+        URL.revokeObjectURL(url); // Libera o objeto URL
+    };
+
+
+    const getDatabase = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}${process.env.REACT_APP_get_database}`, {
+                responseType: 'blob' // importa o tipo blob para o arquivo
+            });
+
+            // Cria um link para download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'clientes_data.zip'; // Nome do arquivo que será baixado
+            document.body.appendChild(a);
+            a.click(); // Simula o clique no link para download
+            a.remove(); // Remove o link do DOM
+        } catch (error) {
+            console.error('Erro ao obter o arquivo:', error);
+        }
+    };
 
     return (
         <HomeStyle.HomeContainer>
@@ -105,8 +144,8 @@ export default function Home() {
                                     <HomeStyle.StyledLink to="/anteciparLucro">
                                         <HomeStyle.Option>ANTECIPAR LUCRO PRA SAQUE</HomeStyle.Option>
                                     </HomeStyle.StyledLink>
-                                    <HomeStyle.StyledLink>
-                                        <HomeStyle.Option>EXTRAIR BD</HomeStyle.Option>
+                                    <HomeStyle.StyledLink onClick={exportClientsToJson}>
+                                        <HomeStyle.Option>EXTRAIR BD</HomeStyle.Option> 
                                     </HomeStyle.StyledLink>
                                 </>
                             ) : opSelected === "CLIENTES" ? (
