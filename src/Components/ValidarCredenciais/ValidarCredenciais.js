@@ -13,6 +13,7 @@ const base_url = process.env.REACT_APP_API_BASE_URL;
 const url_rota_rodar_all_ativos = process.env.REACT_APP_API_RODAR_ALL_ATIVOS;
 const url_rota_edit_saque = process.env.REACT_APP_API_EDITAR_SAQUE;
 const url_rota_edit_ctr = process.env.REACT_APP_API_EDITAR_CONTRATO;
+const url_rota_edit_ctr_ind = process.env.REACT_APP_API_EDITAR_CONTRATO_IND;
 const url_rota_create_ctr = process.env.REACT_APP_API_CRIAR_CONTRATO;
 const url_rota_add_indication = process.env.REACT_APP_PESQUISAR_CLIENTE_ADICIONAR_SALDO_INDICACAO;
 
@@ -147,13 +148,27 @@ export default function ValidarCredenciais({ setMensagemAviso, setModalAberto, m
                 }
             }
 
+            let response;
 
-            const response = await axios.post(`${base_url}${url_rota_edit_ctr}`, {
-                docId: modalData.CLIENT_CPF,
-                IDCONTRATO: modalData.IDCOMPRA,
-                fieldName: 'STATUS',
-                fieldNewValue: aceito ? 1 : 3,
-            });
+            if(modalData.INDICACAO){
+
+                response = await axios.post(`${base_url}${url_rota_edit_ctr_ind}`, {
+                    docId: modalData.CLIENT_CPF,
+                    IDCONTRATO: modalData.IDCOMPRA,
+                    fieldName: 'STATUS',
+                    fieldNewValue: aceito ? 1 : 3,
+                });
+
+            }else{
+                response = await axios.post(`${base_url}${url_rota_edit_ctr}`, {
+                    docId: modalData.CLIENT_CPF,
+                    IDCONTRATO: modalData.IDCOMPRA,
+                    fieldName: 'STATUS',
+                    fieldNewValue: aceito ? 1 : 3,
+                });
+            }
+
+ 
 
             dispatch(updateDepositoSuccess({ ...modalData, STATUS: aceito ? 1 : 3 }));
             if (response.status == 200) {

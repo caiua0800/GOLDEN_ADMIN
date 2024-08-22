@@ -150,6 +150,7 @@ export default function Depositos() {
                                     <S.TableHeaderCell>DATA SOLICITAÇÃO</S.TableHeaderCell>
                                     <S.TableHeaderCell>TOKENS</S.TableHeaderCell>
                                     <S.TableHeaderCell>VALOR</S.TableHeaderCell>
+                                    <S.TableHeaderCell>PAGAMENTO</S.TableHeaderCell>
                                     <S.TableHeaderCell>STATUS</S.TableHeaderCell>
                                     <S.TableHeaderCell>AÇÕES</S.TableHeaderCell>
                                 </S.TableRow>
@@ -163,6 +164,7 @@ export default function Depositos() {
                                         <S.TableCell>{user.PURCHASEDATE}</S.TableCell>
                                         <S.TableCell>{user.COINS}</S.TableCell>
                                         <S.TableCell>U$ {(user.TOTALSPENT)}</S.TableCell>
+                                        <S.TableCell>{user.PAYMETHOD ? user.PAYMETHOD : "Indefinido"}</S.TableCell>
                                         <S.TableCell>{handleStatus(user.STATUS ? user.STATUS : 0)}</S.TableCell>
                                         <S.TableCell>
                                             <S.OptionsButtons>
