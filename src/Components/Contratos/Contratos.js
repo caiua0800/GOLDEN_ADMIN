@@ -140,7 +140,7 @@ export default function Contratos() {
                 <S.Boxes>
                     <S.Box bgColor="#f2f2f2">
                         <S.BoxContent>
-                            <S.BoxTitle>VALOR TOTAL</S.BoxTitle>
+                            <S.BoxTitle>INVESTIMENTOS RECEBIDOS</S.BoxTitle>
                             <span>U$ {formatCurrencyBRL(adminData.totalSaldoGolden ? adminData.totalSaldoGolden : 0)}</span>
                         </S.BoxContent>
                     </S.Box>
@@ -152,7 +152,7 @@ export default function Contratos() {
                     </S.Box>
                     <S.Box bgColor="#f2f2f2">
                         <S.BoxContent>
-                            <S.BoxTitle>TOTAL DE GANHOS</S.BoxTitle>
+                            <S.BoxTitle>GANHOS DOS CLIENTES</S.BoxTitle>
                             <span>U$ {formatCurrencyBRL(adminData.totalDeGanhosPlataforma)}</span>
                         </S.BoxContent>
                     </S.Box>

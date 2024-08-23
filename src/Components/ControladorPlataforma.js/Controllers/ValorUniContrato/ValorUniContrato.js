@@ -28,9 +28,13 @@ export default function ValorUnidadeContrato() {
                 const data = docSnap.data();
                 if (data) {
                     setValorAtualMoeda(data.TOKEN_VALUE ? data.TOKEN_VALUE.toString() : ""); // Armazena como string
+                    setNovoValor(data.TOKEN_VALUE.toString())
                     setRendimentoPadrao(data.RENDIMENTO_PADRAO ? data.RENDIMENTO_PADRAO.toString() : ""); 
+                    setNovoRendimento(data.RENDIMENTO_PADRAO.toString())
                     setDuracaoAtual(data.CONTRACT_TIME ? data.CONTRACT_TIME : ''); // Duração pode ser mantida como string
+                    setNovoDuracao(data.CONTRACT_TIME)
                     setDolarPadrao(data.DOLAR ? data.DOLAR.toString() : ""); // Armazena como string
+                    setNovoDolar(data.DOLAR)
                 }
             } else {
                 console.log('Documento não encontrado.');
