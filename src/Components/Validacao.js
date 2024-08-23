@@ -19,9 +19,7 @@ export default function Validacao() {
 
     const filteredClients = Array.isArray(clients) && search.length > 0
     ? clients.filter(user => (user.NAME.toUpperCase().includes(search.toUpperCase()) && (!user.DOCSVERIFICADOS && user.DOCSENVIADOS)))
-    : Array.isArray(clients) 
-    ? clients.filter(user => !user.DOCSVERIFICADOS && user.DOCSENVIADOS)
-    : []; // Isso garante que você não tente filtrar uma variável inválida
+    : clients.filter(user => (!user.DOCSVERIFICADOS && user.DOCSENVIADOS));
 
 
 
