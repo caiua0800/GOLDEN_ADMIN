@@ -25,15 +25,18 @@ export const HomeContent = styled.div`
     height: 100%;
     display: flex;
     justify-content: center;
-    flex-direction: ROW;
+    flex-direction: row;
     align-items: center;
     position: fixed;
-    GAP: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
     top: 0;
     left: 0;
     background-color: rgba(0,0,0,0.8);
     z-index: 9999999999;
-
+    overflow: scroll;
+    padding: 30px;
+    box-sizing: border-box;
 
     span{
         position: fixed;
@@ -89,17 +92,15 @@ export const Option = styled.div`
     font-size: 22px;
     transition: .3s;
     box-sizing: border-box;
-    padding: 10px;
+    padding: 15px;
     color: rgba(0,0,0,0.7);
     font-weight: 800;
     background-color: #bf9b30;
+    text-align: center;
+    overflow: hidden;
 
     &:hover{
         transform: scale(1.05);
-    }
-
-    @media (max-width: 920px){
-        width: 100%;
     }
 `;
 
@@ -113,8 +114,9 @@ export const FirstMachine = styled.div`
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 100px;
+    box-sizing: border-box;
 `;
 
 export const OptionCircle = styled.div`

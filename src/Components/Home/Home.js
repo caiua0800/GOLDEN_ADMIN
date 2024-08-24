@@ -82,6 +82,7 @@ export default function Home() {
             console.error('Erro ao obter o arquivo:', error);
         }
     };
+    
 
     return (
         <HomeStyle.HomeContainer>
