@@ -13,6 +13,7 @@ export default function JanelaSaque() {
 
 
     const fetchJanelaDeSaques = async () => {
+
         try {
             const docRef = doc(db, 'SYSTEM_VARIABLES', 'JANELA_DE_SAQUES');
             const docSnap = await getDoc(docRef);
@@ -37,14 +38,16 @@ export default function JanelaSaque() {
     };
 
     const handleInputChange = (event) => {
+        
         setNumDays(event.target.value);
     };
 
     const handleSubmit = (event) => {
+        
         event.preventDefault();
         const newInputs = Array.from({ length: numDays }, (_, index) => index + 1);
         setInputs(newInputs);
-        setInputValues(newInputs.map(() => "")); // Inicializar valores dos inputs como strings vazias
+        setInputValues(newInputs.map(() => "")); 
         setIsDefinirVisible(true); 
     };
 
@@ -55,6 +58,7 @@ export default function JanelaSaque() {
     };
 
     const handleDefinirClick = async () => {
+
         try {
             const docRef = doc(db, 'SYSTEM_VARIABLES', 'JANELA_DE_SAQUES');
             await updateDoc(docRef, { DIAS: deleteField() });

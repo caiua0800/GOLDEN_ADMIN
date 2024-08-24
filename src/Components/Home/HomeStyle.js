@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 export const HomeContainer = styled.div`
     width: 100%;
     background: linear-gradient(to right, #001D3D, #003566, #001D3D);
+
     height: 100vh;
     overflow: auto;
     padding-top: 40px;
@@ -14,6 +15,7 @@ export const HomeContainer = styled.div`
     box-sizing: border-box;
     overflow-x: hidden;
     position: relative;
+
     @media (max-width: 920px){
         padding: 80px 20px;
     }
