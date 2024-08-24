@@ -4,7 +4,6 @@ import { formatCPFCriarCliente, formatCEP, formatTelefone, removeFormatting } fr
 import axios from "axios";
 
 
-const platformIcon = 'https://firebasestorage.googleapis.com/v0/b/wldata.appspot.com/o/logoGoldenToken-removebg-preview.png?alt=media&token=5109abf4-41b8-4c9a-8803-4b4adbab0cb2';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const API_CRIAR_CLIENTE = process.env.REACT_APP_API_CRIAR_CLIENTE;
@@ -56,11 +55,14 @@ export default function CadastroPage({ setModalCriarCliente }) {
 
         try {
             const response = await axios.post(`${API_BASE_URL}${API_CRIAR_CLIENTE}`, clientData);
-            setResposta(response.data); // Atualiza o estado com a resposta do servidor
-            alert(`Resposta do Servidor: ${response.data}`); // Mostra a resposta em um alerta
+            setResposta({ message: response.data.message || 'Usuário criado com sucesso!', type: 'success' });
+            alert(`Resposta do Servidor: ${response.data.message}`);
+            console.log(response.data) 
+            window.location.href = '/';
         } catch (error) {
-            setResposta(`Erro ao criar cadastro: ${error.message}`); // Atualiza o estado com a mensagem de erro
-            alert(`Erro ao criar cadastro: ${error.message}`); // Mostra a mensagem de erro em um alerta
+            console.log(error.response.data)
+            setResposta(`Erro ao criar cadastro: ${error.response.data}`); // Atualiza o estado com a mensagem de erro
+            alert(`Erro ao criar cadastro: ${error.response.data.error}`); // Mostra a mensagem de erro em um alerta
         }
     };
 
@@ -73,7 +75,7 @@ export default function CadastroPage({ setModalCriarCliente }) {
                         Seja bem vindo(a) a Golden Brasil
                     </S.CadastroTitle>
                     <S.LogoBox>
-                        <img src={platformIcon} alt="Brand Logo" />
+                        <img src="logo-golden.png" alt="Brand Logo" />
                     </S.LogoBox>
                 </S.CadastroBox>
 
